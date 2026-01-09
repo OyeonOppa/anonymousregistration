@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+        <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#667eea">
+    <title>แบบฟอร์มแจ้งความประสงค์เข้าคัดเลือกหลักสูตร 4ส รุ่นที่ 16</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- SweetAlert2 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+            <div class="spinner"></div>
+            <p id="loadingText">กำลังตรวจสอบข้อมูล...</p>
+        </div>
+
+        <!-- Modal แสดงข้อมูลซ้ำ -->
+        <div id="duplicateModal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modalTitle">⚠️ เลขบัตรประชาชนนี้เคยลงทะเบียนแล้ว</h2>
+                </div>
+                <div class="modal-body">
+                    <div class="duplicate-info">
+                        <p>ท่านได้ลงทะเบียนเข้าหลักสูตรนี้ไปแล้ว</p>
+                        <div class="anonymous-id-display">
+                            <label>รหัสอ้างอิงเดิมของท่าน:</label>
+                            <div class="id-box" id="existingAnonymousId">ANO-2026-XXXXXX</div>
+                        </div>
+                        <div class="help-text">
+                            <p><strong>💡 ท่านสามารถ:</strong></p>
+                            <ul>
+                                <li>ตรวจสอบสถานะด้วยรหัสอ้างอิงข้างต้น</li>
+                                <li>ติดต่อเจ้าหน้าที่หากต้องการแก้ไขข้อมูล</li>
+                                <li>รอผลการพิจารณาทางอีเมล</li>
+                            </ul>
+                        </div>
+                        <div class="alert alert-info">
+                            <small>
+                                <strong>หมายเหตุ:</strong> ระบบป้องกันการลงทะเบียนซ้ำ
+                                เพื่อให้การคัดเลือกเป็นไปอย่างยุติธรรม
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary btn-lg" onclick="closeDuplicateModal()">
+                        เข้าใจแล้ว
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-wrapper">
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <h1 class="form-title">แบบฟอร์มแจ้งความประสงค์เข้าคัดเลือกเป็นนักศึกษา</h1>
+                <p class="text-muted">หลักสูตรประกาศนียบัตรชั้นสูงการเสริมสร้างสังคมสันติสุข รุ่นที่ 16</p>
+            </div>
+
+            <!-- Progress Bar -->
+            <div id="progressBar" class="progress-container">
+                <div class="progress-bar-wrapper">
+                    <div class="progress-bar-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-steps">
+                    <div class="progress-step active" id="step1Indicator">
+                        <div class="step-number">1</div>
+                        <div class="step-label">ยืนยันตัวตน</div>
+                    </div>
+                    <div class="progress-step" id="step2Indicator">
+                        <div class="step-number">2</div>
+                        <div class="step-label">คุณสมบัติ</div>
+                    </div>
+                    <div class="progress-step" id="step3Indicator">
+                        <div class="step-number">3</div>
+                        <div class="step-label">แรงจูงใจ</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Content -->
+            <div id="formContent" class="form-content">
+                <!-- Step 1: ยืนยันตัวตน -->
+                <div id="step1" class="step-container">
+                    <div class="step-header">
+                        <h2>ข้อมูลเพื่อยืนยันตัวตน</h2>
+                        <p class="text-muted">
+                            ข้อมูลนี้จะถูกเข้ารหัสและใช้สำหรับยืนยันเท่านั้น ไม่แสดงต่อคณะกรรมการ
+                        </p>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label class="form-label required">เลขบัตรประชาชน (13 หลัก)</label>
+                        <input type="text" 
+                               id="idCard" 
+                               class="form-control form-control-lg" 
+                               placeholder="x-xxxx-xxxxx-xx-x" 
+                               maxlength="13">
+                        <small class="form-text text-muted">
+                            ใช้สำหรับอ้างอิงและยืนยันตัวตนเท่านั้น จะถูกเข้ารหัสก่อนบันทึก
+                        </small>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label class="form-label required">อีเมล</label>
+                        <input type="email" 
+                               id="email" 
+                               class="form-control form-control-lg" 
+                               placeholder="example@email.com">
+                        <small class="form-text text-muted">
+                            ใช้สำหรับส่งอีเมลยืนยันและติดต่อกลับ
+                        </small>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <strong>หมายเหตุ:</strong> ข้อมูลส่วนบุคคลของท่านจะถูกเก็บเป็นความลับ 
+                        คณะกรรมการจะพิจารณาจากคุณสมบัติและคำตอบเท่านั้น
+                    </div>
+
+                    <div class="button-group mt-4">
+                        <button class="btn btn-primary btn-lg" onclick="goToStep2()">
+                            ถัดไป →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2: คุณสมบัติ -->
+                <div id="step2" class="step-container" style="display: none;">
+                    <div class="step-header">
+                        <div class="anonymous-id-badge mb-3">
+                            รหัสอ้างอิง: <strong id="anonymousIdDisplay">-</strong>
+                        </div>
+                        <h2>คุณสมบัติและข้อมูลการทำงาน</h2>
+                        <p class="text-muted">
+                            กรุณากรอกข้อมูลเพื่อให้คณะกรรมการพิจารณาคุณสมบัติ
+                        </p>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label class="form-label required">คุณสมบัติ</label>
+                        <select id="qualification" class="form-select form-control-lg">
+                            <option value="">-- เลือกคุณสมบัติ --</option>
+                            <option value="ข้าราชการ">ข้าราชการ</option>
+                            <option value="พนักงานรัฐวิสาหกิจ">พนักงานรัฐวิสาหกิจ</option>
+                            <option value="พนักงานเอกชน">พนักงานเอกชน</option>
+                            <option value="อาจารย์/นักวิชาการ">อาจารย์/นักวิชาการ</option>
+                            <option value="อื่นๆ">อื่นๆ</option>
+                        </select>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label class="form-label required">อายุ</label>
+                        <input type="number" 
+                               id="age" 
+                               class="form-control form-control-lg" 
+                               placeholder="เช่น 30"
+                               min="18"
+                               max="99">
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label class="form-label required">ตำแหน่ง</label>
+                        <input type="text" 
+                               id="position" 
+                               class="form-control form-control-lg" 
+                               placeholder="เช่น นักวิเคราะห์นโยบายและแผน">
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label class="form-label required">หน่วยงาน</label>
+                        <input type="text" 
+                               id="organization" 
+                               class="form-control form-control-lg" 
+                               placeholder="เช่น กรมส่งเสริมการปกครองท้องถิ่น">
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label class="form-label required">
+                            คำอธิบายหน่วยงาน
+                            <span class="word-counter ms-2">
+                                (<span id="wordCount">0</span>/100 คำ)
+                            </span>
+                        </label>
+                        <textarea id="organizationDescription" 
+                                  class="form-control" 
+                                  rows="4" 
+                                  placeholder="อธิบายถึงภาระหน้าที่และบทบาทของหน่วยงานโดยย่อ"></textarea>
+                        <div class="invalid-feedback"></div>
+                        <small class="text-danger" id="wordCountWarning" style="display: none;">
+                            เกินจำนวนคำที่กำหนด
+                        </small>
+                    </div>
+
+                    <div class="button-group mt-4">
+                        <button class="btn btn-outline-secondary btn-lg" onclick="goToStep1()">
+                            ← ย้อนกลับ
+                        </button>
+                        <button class="btn btn-primary btn-lg" onclick="goToStep3()">
+                            ถัดไป →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 3: แรงจูงใจ -->
+                <div id="step3" class="step-container" style="display: none;">
+                    <div class="step-header">
+                        <h2>แรงจูงใจและความคาดหวัง</h2>
+                        <p class="text-muted">
+                            ส่วนนี้เป็นส่วนสำคัญที่จะช่วยคณะกรรมการเข้าใจความตั้งใจและศักยภาพของท่าน
+                        </p>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label class="form-label required">
+                            1. ทำไมถึงอยากเรียนหลักสูตร 4ส และคาดหวังอะไรต่อหลักสูตร
+                        </label>
+                        <textarea id="whyInterested" 
+                                  class="form-control" 
+                                  rows="4" 
+                                  placeholder="อธิบายเหตุผลและแรงจูงใจที่ต้องการเข้าร่วมหลักสูตร"></textarea>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label class="form-label required">
+                            2. ลักษณะงาน/งานที่ทำ มีความเชื่อมโยงกับหลักสูตรอย่างไร
+                        </label>
+                        <textarea id="workConnection" 
+                                  class="form-control" 
+                                  rows="4" 
+                                  placeholder="อธิบายความสัมพันธ์ระหว่างงานปัจจุบันกับเนื้อหาหลักสูตร"></textarea>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label class="form-label required">
+                            3. ท่านจะนำองค์ความรู้จากหลักสูตรไปประยุกต์ใช้อย่างไร
+                        </label>
+                        <textarea id="relevantExperience" 
+                                  class="form-control" 
+                                  rows="4" 
+                                  placeholder="ระบุประสบการณ์หรือโครงการที่เคยทำที่เกี่ยวข้อง"></textarea>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <strong>⚠️ โปรดตรวจสอบข้อมูลอีกครั้ง</strong><br>
+                        เมื่อกดส่งข้อมูลแล้ว จะไม่สามารถแก้ไขได้
+                    </div>
+
+                    <div class="button-group mt-4">
+                        <button class="btn btn-outline-secondary btn-lg" onclick="goToStep2()">
+                            ← ย้อนกลับ
+                        </button>
+                        <button class="btn btn-success btn-lg" id="submitBtn" onclick="submitForm()">
+                            ส่งข้อมูล ✓
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Success Screen -->
+                <div id="successScreen" class="step-container" style="display: none;">
+                    <div class="success-container">
+                        <div class="success-icon">✓</div>
+                        <h2>ส่งข้อมูลสำเร็จ!</h2>
+                        <div class="anonymous-id-box">
+                            <p class="mb-2">รหัสอ้างอิงของท่าน:</p>
+                            <h3 class="text-primary" id="finalAnonymousId">-</h3>
+                            <small class="text-muted">
+                                กรุณาเก็บรหัสนี้ไว้สำหรับการติดตามผลการคัดเลือก
+                            </small>
+                        </div>
+                        <p class="mt-4">
+                            เราได้ส่งอีเมลยืนยันไปที่ <strong id="finalEmail">-</strong> แล้ว
+                            <br>
+                            <small class="text-muted">(กรุณาตรวจสอบใน Inbox และ Junk/Spam)</small>
+                        </p>
+                        <button class="btn btn-primary mt-3" onclick="location.reload()">
+                            กรอกข้อมูลใหม่
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#667eea">
+    <title>ตรวจสอบสถานะการสมัคร</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-block;
+        }
+        
+        .status-pending {
+            background: #e0e7ff;
+            color: #3730a3;
+            border: 2px solid #6366f1;
+        }
+        
+        .status-approved {
+            background: #d1fae5;
+            color: #065f46;
+            border: 2px solid #059669;
+        }
+        
+        .status-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 2px solid #dc2626;
+        }
+        
+        .status-documents {
+            background: #fef3c7;
+            color: #92400e;
+            border: 2px solid #f59e0b;
+        }
+        
+        .result-container {
+            margin-top: 2rem;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+        
+        .info-value {
+            color: var(--text-color);
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="form-wrapper">
+            <div class="text-center mb-4">
+                <h1 class="form-title">ตรวจสอบสถานะการสมัคร</h1>
+                <p class="text-muted">กรอกรหัสอ้างอิงเพื่อตรวจสอบผลการพิจารณา</p>
+            </div>
+
+            <div style="max-width: 500px; margin: 0 auto;">
+                <div class="mb-4">
+                    <label class="form-label">รหัสอ้างอิง (Anonymous ID)</label>
+                    <input
+                        type="text"
+                        class="form-control form-control-lg"
+                        id="anonymousId"
+                        placeholder="ANO-2024-XXXXXX"
+                        style="text-transform: uppercase;"
+                    />
+                    <small class="form-text text-muted">
+                        รหัสอ้างอิงที่ได้รับทางอีเมลหลังจากลงทะเบียน
+                    </small>
+                </div>
+
+                <button
+                    class="btn btn-primary btn-lg w-100"
+                    onclick="checkStatus()"
+                >
+                    ตรวจสอบสถานะ
+                </button>
+
+                <div id="resultContainer" style="display: none;">
+                    <!-- Results will be shown here -->
+                </div>
+
+                <div class="text-center mt-4">
+                    <a href="index.html" class="text-primary">← กลับสู่หน้าลงทะเบียน</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyRdhtw4-ynt5toT70hOJEFS3xXoEGREQf7jqxNxJk_BwvZ2KPxQwTUCYBFgw7OQVhT/exec';
+
+        async function checkStatus() {
+            const anonymousId = document.getElementById('anonymousId').value.trim().toUpperCase();
+            
+            if (!anonymousId) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'กรุณากรอกรหัสอ้างอิง',
+                    confirmButtonColor: '#1e3a8a'
+                });
+                return;
+            }
+            
+            // Show loading
+            Swal.fire({
+                title: 'กำลังตรวจสอบ...',
+                html: '<div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>',
+                showConfirmButton: false,
+                allowOutsideClick: false
+            });
+            
+            try {
+                const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=checkStatus&anonymousId=${anonymousId}`, {
+                    method: 'GET',
+                    redirect: 'follow'
+                });
+                
+                const result = await response.json();
+                
+                Swal.close();
+                
+                if (result.success) {
+                    showResult(result.data);
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ไม่พบข้อมูล',
+                        text: result.message || 'ไม่พบรหัสอ้างอิงนี้ในระบบ กรุณาตรวจสอบอีกครั้ง',
+                        confirmButtonColor: '#dc2626'
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.close();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถเชื่อมต่อกับระบบได้ กรุณาลองใหม่อีกครั้ง',
+                    confirmButtonColor: '#dc2626'
+                });
+            }
+        }
+        
+        function showResult(data) {
+            const statusBadge = getStatusBadge(data.status);
+            const statusMessage = getStatusMessage(data.status);
+            
+            const resultHtml = `
+                <div class="result-container">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="text-center mb-3">
+                                <h4>ผลการตรวจสอบ</h4>
+                                ${statusBadge}
+                            </div>
+                            
+                            <div class="mt-3">
+                                <div class="info-row">
+                                    <span class="info-label">รหัสอ้างอิง:</span>
+                                    <span class="info-value"><strong>${data.anonymousId}</strong></span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">วันที่ลงทะเบียน:</span>
+                                    <span class="info-value">${formatDate(data.timestamp)}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">คุณสมบัติ:</span>
+                                    <span class="info-value">${data.qualification}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">อายุ:</span>
+                                    <span class="info-value">${data.age}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">ตำแหน่ง:</span>
+                                    <span class="info-value">${data.position}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">หน่วยงาน:</span>
+                                    <span class="info-value">${data.organization}</span>
+                                </div>
+                            </div>
+                            
+                            ${statusMessage}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('resultContainer').innerHTML = resultHtml;
+            document.getElementById('resultContainer').style.display = 'block';
+            
+            // Scroll to result
+            document.getElementById('resultContainer').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'nearest' 
+            });
+        }
+        
+        function getStatusBadge(status) {
+            const statusMap = {
+                'รอพิจารณา': '<span class="status-badge status-pending">⏱ รอพิจารณา</span>',
+                'ผ่านการคัดเลือก': '<span class="status-badge status-approved">✓ ผ่านการคัดเลือก</span>',
+                'ไม่ผ่านการคัดเลือก': '<span class="status-badge status-rejected">✗ ไม่ผ่านการคัดเลือก</span>',
+                'รอเอกสารเพิ่มเติม': '<span class="status-badge status-documents">📄 รอเอกสารเพิ่มเติม</span>'
+            };
+            return statusMap[status] || `<span class="status-badge status-pending">${status}</span>`;
+        }
+        
+        function getStatusMessage(status) {
+            const messages = {
+                'รอพิจารณา': `
+                    <div class="alert alert-info mt-3">
+                        <strong>ℹ️ หมายเหตุ:</strong> คณะกรรมการกำลังพิจารณาใบสมัครของท่าน
+                        ผลจะแจ้งทางอีเมลภายใน 7-14 วันทำการ
+                    </div>
+                `,
+                'ผ่านการคัดเลือก': `
+                    <div class="alert alert-success mt-3">
+                        <strong>🎉 ยินดีด้วย!</strong> ท่านผ่านการคัดเลือก
+                        เจ้าหน้าที่จะติดต่อกลับทางอีเมลเร็วๆ นี้
+                    </div>
+                `,
+                'ไม่ผ่านการคัดเลือก': `
+                    <div class="alert alert-secondary mt-3">
+                        <strong>ขอบคุณ</strong>ที่ให้ความสนใจหลักสูตรของเรา
+                        หวังว่าจะได้พบท่านในโอกาสต่อไป
+                    </div>
+                `,
+                'รอเอกสารเพิ่มเติม': `
+                    <div class="alert alert-warning mt-3">
+                        <strong>📄 ต้องการเอกสารเพิ่มเติม</strong><br>
+                        กรุณาตรวจสอบอีเมลเพื่อดูรายละเอียดเอกสารที่ต้องการ
+                    </div>
+                `
+            };
+            return messages[status] || '';
+        }
+        
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('th-TH', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        // Allow Enter key to submit
+        document.getElementById('anonymousId').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkStatus();
+            }
+        });
+    </script>
+</body>
+</html>

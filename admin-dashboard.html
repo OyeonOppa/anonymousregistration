@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Admin Dashboard - ระบบจัดการผู้สมัคร</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- jsPDF for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- SheetJS for Excel export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="admin-style.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>หลักสูตร 4ส รุ่น 16</span>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" data-page="dashboard">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-item" data-page="applicants">
+                <i class="fas fa-users"></i>
+                <span>จัดการผู้สมัคร</span>
+            </a>
+            <a href="#" class="nav-item" data-page="analytics">
+                <i class="fas fa-chart-pie"></i>
+                <span>สถิติและรายงาน</span>
+            </a>
+            <a href="#" class="nav-item" data-page="export">
+                <i class="fas fa-file-export"></i>
+                <span>Export ข้อมูล</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="btn-logout" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>ออกจากระบบ</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 id="pageTitle">Dashboard</h1>
+            </div>
+            <div class="topbar-right">
+                <div class="user-info">
+                    <i class="fas fa-user-shield"></i>
+                    <span>Admin</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Page -->
+        <div class="page active" id="dashboardPage">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="totalApplicants">0</div>
+                        <div class="stat-label">ผู้สมัครทั้งหมด</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon yellow">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="pendingApplicants">0</div>
+                        <div class="stat-label">รอพิจารณา</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="approvedApplicants">0</div>
+                        <div class="stat-label">อนุมัติ</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon red">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="rejectedApplicants">0</div>
+                        <div class="stat-label">ไม่อนุมัติ</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h3>
+                        <i class="fas fa-briefcase"></i>
+                        จำนวนผู้สมัครตามคุณสมบัติ
+                    </h3>
+                    <canvas id="qualificationChart"></canvas>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>
+                        <i class="fas fa-birthday-cake"></i>
+                        จำนวนผู้สมัครตามช่วงอายุ
+                    </h3>
+                    <canvas id="ageChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Applicants Page -->
+        <div class="page" id="applicantsPage">
+            <!-- Filter Bar -->
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <label>
+                        <i class="fas fa-search"></i>
+                        ค้นหา
+                    </label>
+                    <input type="text" id="searchInput" placeholder="ค้นหาด้วยรหัสอ้างอิง, อีเมล">
+                </div>
+
+                <div class="filter-group">
+                    <label>
+                        <i class="fas fa-filter"></i>
+                        สถานะ
+                    </label>
+                    <select id="filterStatus">
+                        <option value="">ทั้งหมด</option>
+                        <option value="รอพิจารณา">รอพิจารณา</option>
+                        <option value="อนุมัติ">อนุมัติ</option>
+                        <option value="ไม่อนุมัติ">ไม่อนุมัติ</option>
+                        <option value="ต้องการเอกสารเพิ่มเติม">ต้องการเอกสารเพิ่มเติม</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>
+                        <i class="fas fa-briefcase"></i>
+                        คุณสมบัติ
+                    </label>
+                    <select id="filterQualification">
+                        <option value="">ทั้งหมด</option>
+                        <option value="ข้าราชการ">ข้าราชการ</option>
+                        <option value="พนักงานรัฐวิสาหกิจ">พนักงานรัฐวิสาหกิจ</option>
+                        <option value="พนักงานเอกชน">พนักงานเอกชน</option>
+                        <option value="อาจารย์/นักวิชาการ">อาจารย์/นักวิชาการ</option>
+                        <option value="อื่นๆ">อื่นๆ</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>
+                        <i class="fas fa-birthday-cake"></i>
+                        ช่วงอายุ
+                    </label>
+                    <select id="filterAge">
+                        <option value="">ทั้งหมด</option>
+                        <option value="18-30">18-30 ปี</option>
+                        <option value="31-40">31-40 ปี</option>
+                        <option value="41-50">41-50 ปี</option>
+                        <option value="51-60">51-60 ปี</option>
+                        <option value="60+">60+ ปี</option>
+                    </select>
+                </div>
+
+                <button class="btn-primary" id="refreshBtn">
+                    <i class="fas fa-sync-alt"></i>
+                    รีเฟรช
+                </button>
+            </div>
+
+            <!-- Table -->
+            <div class="table-container">
+                <table id="applicantsTable">
+                    <thead>
+                        <tr>
+                            <th>รหัสอ้างอิง</th>
+                            <th>วันที่สมัคร</th>
+                            <th>คุณสมบัติ</th>
+                            <th>อายุ</th>
+                            <th>ตำแหน่ง</th>
+                            <th>หน่วยงาน</th>
+                            <th>สถานะ</th>
+                            <th>จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="applicantsTableBody">
+                        <!-- Data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination" id="pagination">
+                <!-- Pagination will be generated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Analytics Page -->
+        <div class="page" id="analyticsPage">
+            <div class="analytics-grid">
+                <div class="analytics-card full-width">
+                    <h3>สถิติโดยรวม</h3>
+                    <canvas id="overallChart"></canvas>
+                </div>
+
+                <div class="analytics-card">
+                    <h3>Top 5 หน่วยงาน</h3>
+                    <div id="topOrganizations"></div>
+                </div>
+
+                <div class="analytics-card">
+                    <h3>สัดส่วนการอนุมัติ</h3>
+                    <canvas id="approvalChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Page -->
+        <div class="page" id="exportPage">
+            <div class="export-container">
+                <div class="export-card">
+                    <div class="export-icon">
+                        <i class="fas fa-file-excel"></i>
+                    </div>
+                    <h3>Export เป็น Excel</h3>
+                    <p>ดาวน์โหลดข้อมูลทั้งหมดเป็นไฟล์ Excel (.xlsx)</p>
+                    <button class="btn-success" id="exportExcelBtn">
+                        <i class="fas fa-download"></i>
+                        ดาวน์โหลด Excel
+                    </button>
+                </div>
+
+                <div class="export-card">
+                    <div class="export-icon">
+                        <i class="fas fa-file-csv"></i>
+                    </div>
+                    <h3>Export เป็น CSV</h3>
+                    <p>ดาวน์โหลดข้อมูลทั้งหมดเป็นไฟล์ CSV</p>
+                    <button class="btn-primary" id="exportCsvBtn">
+                        <i class="fas fa-download"></i>
+                        ดาวน์โหลด CSV
+                    </button>
+                </div>
+
+                <div class="export-card">
+                    <div class="export-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <h3>Export PDF (เลือก)</h3>
+                    <p>ดาวน์โหลดใบสมัครของผู้ที่เลือกเป็น PDF</p>
+                    <button class="btn-info" id="exportSelectedPdfBtn" disabled>
+                        <i class="fas fa-download"></i>
+                        ดาวน์โหลด PDF (เลือก 0 คน)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Detail Modal -->
+    <div class="modal" id="detailModal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h2>รายละเอียดผู้สมัคร</h2>
+                <button class="modal-close" onclick="closeDetailModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="detailModalBody">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeDetailModal()">ปิด</button>
+                <button class="btn-primary" id="downloadPdfBtn">
+                    <i class="fas fa-file-pdf"></i>
+                    ดาวน์โหลด PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <p>กำลังโหลดข้อมูล...</p>
+    </div>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Admin Script -->
+    <script src="admin-script.js"></script>
+    
+    <!-- PDF Generator -->
+    <script src="pdf-generator.js"></script>
+</body>
+</html>
