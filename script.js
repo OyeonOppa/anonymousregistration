@@ -2,7 +2,7 @@
 // ⚙️ CONFIGURATION
 // ================================
 
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxHFOjY3aMK5uNsR6ABkpxMjqRofgcDaz2aFl1u7Z-SmDUus5WQe2bTYGzZiynOoSOB/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw6gwytlan2lTqSDRybXEb5WFpdMWqp-UOeFUxrzxvpQQu-Nc5w49I2me30TT-X_T9n/exec';
 
 // ================================
 // 📝 STATE MANAGEMENT
@@ -14,15 +14,13 @@ let formData = {
     idCard: '',
     email: '',
     qualification: '',
-    age: '',  // ⭐ เพิ่มบรรทัดนี้
+    age: '',
     position: '',
     organization: '',
     organizationDescription: '',
     whyInterested: '',
     workConnection: '',
-    relevantExperience: '',
-    expectations: '',
-    knowledgeApplication: ''
+    relevantExperience: ''
 };
 
 // ================================
@@ -146,7 +144,6 @@ function getStep2HTML() {
                 <div class="invalid-feedback" id="qualificationError"></div>
             </div>
 
-            <!-- ⭐ เพิ่มฟิลด์อายุตรงนี้ -->
             <div class="mb-4">
                 <label class="form-label required">อายุ</label>
                 <input
@@ -219,72 +216,47 @@ function getStep3HTML() {
                 <h2>แรงจูงใจและความคาดหวัง</h2>
                 <p class="text-muted">
                     ส่วนนี้เป็นส่วนสำคัญที่จะช่วยคณะกรรมการเข้าใจความตั้งใจและศักยภาพของท่าน
+                    <br><strong class="text-primary">กรุณาตอบคำถาม 3 ข้อ (รวมไม่เกิน 300-450 คำ)</strong>
                 </p>
             </div>
 
             <div class="mb-4">
                 <label class="form-label required">
-                    1. ทำไมถึงอยากเรียนหลักสูตรนี้
+                    1. ทำไมถึงอยากเรียนหลักสูตร 4ส และคาดหวังอะไรต่อหลักสูตร
                 </label>
                 <textarea
                     class="form-control"
                     id="whyInterested"
-                    rows="4"
-                    placeholder="อธิบายเหตุผลและแรงจูงใจที่ต้องการเข้าร่วมหลักสูตร"
+                    rows="6"
+                    placeholder="อธิบายเหตุผลและแรงจูงใจที่ต้องการเข้าร่วมหลักสูตร (ไม่เกิน 150 คำ)"
                 >${formData.whyInterested}</textarea>
                 <div class="invalid-feedback" id="whyInterestedError"></div>
             </div>
 
             <div class="mb-4">
                 <label class="form-label required">
-                    2. งานที่ทำมีความเชื่อมโยงกับหลักสูตรอย่างไร
+                    2. ลักษณะงาน/งานที่ทำ มีความเชื่อมโยงกับหลักสูตรอย่างไร
                 </label>
                 <textarea
                     class="form-control"
                     id="workConnection"
-                    rows="4"
-                    placeholder="อธิบายความสัมพันธ์ระหว่างงานปัจจุบันกับเนื้อหาหลักสูตร"
+                    rows="6"
+                    placeholder="อธิบายความสัมพันธ์ระหว่างงานปัจจุบันกับเนื้อหาหลักสูตร (ไม่เกิน 150 คำ)"
                 >${formData.workConnection}</textarea>
                 <div class="invalid-feedback" id="workConnectionError"></div>
             </div>
 
             <div class="mb-4">
                 <label class="form-label required">
-                    3. ลักษณะงาน/ประสบการณ์ที่เกี่ยวข้องกับหลักสูตร
+                    3. ท่านจะนำองค์ความรู้จากหลักสูตรไปประยุกต์ใช้อย่างไร
                 </label>
                 <textarea
                     class="form-control"
                     id="relevantExperience"
-                    rows="4"
-                    placeholder="ระบุประสบการณ์หรือโครงการที่เคยทำที่เกี่ยวข้อง"
+                    rows="6"
+                    placeholder="อธิบายแผนการนำความรู้ไปใช้ในการทำงานหรือพัฒนาองค์กร (ไม่เกิน 150 คำ)"
                 >${formData.relevantExperience}</textarea>
                 <div class="invalid-feedback" id="relevantExperienceError"></div>
-            </div>
-
-            <div class="mb-4">
-                <label class="form-label required">
-                    4. สิ่งที่คาดหวังต่อหลักสูตร
-                </label>
-                <textarea
-                    class="form-control"
-                    id="expectations"
-                    rows="4"
-                    placeholder="บอกเล่าว่าต้องการได้รับอะไรจากหลักสูตรนี้"
-                >${formData.expectations}</textarea>
-                <div class="invalid-feedback" id="expectationsError"></div>
-            </div>
-
-            <div class="mb-4">
-                <label class="form-label required">
-                    5. ท่านจะนำองค์ความรู้จากหลักสูตรไปประยุกต์ใช้อย่างไร
-                </label>
-                <textarea
-                    class="form-control"
-                    id="knowledgeApplication"
-                    rows="4"
-                    placeholder="อธิบายแผนการนำความรู้ไปใช้ในการทำงานหรือพัฒนาองค์กร"
-                >${formData.knowledgeApplication}</textarea>
-                <div class="invalid-feedback" id="knowledgeApplicationError"></div>
             </div>
 
             <div class="alert alert-warning">
@@ -337,17 +309,6 @@ function showSuccessScreen() {
     `;
 }
 
-function showCheckingScreen() {
-    const formContent = document.getElementById('formContent');
-    formContent.innerHTML = `
-        <div class="checking-container">
-            <div class="spinner-border mb-3"></div>
-            <h3>กำลังตรวจสอบข้อมูล...</h3>
-            <p class="text-muted">กรุณารอสักครู่</p>
-        </div>
-    `;
-}
-
 // ================================
 // 🔄 HELPER FUNCTIONS
 // ================================
@@ -378,23 +339,20 @@ function saveFormValues() {
     if (currentStep === 1) {
         formData.idCard = document.getElementById('idCard')?.value || '';
         formData.email = document.getElementById('email')?.value || '';
-} else if (currentStep === 2) {
-    formData.qualification = document.getElementById('qualification')?.value || '';
-    formData.age = document.getElementById('age')?.value || '';  // ⭐ เพิ่มบรรทัดนี้
-    formData.position = document.getElementById('position')?.value || '';
-    formData.organization = document.getElementById('organization')?.value || '';
-    formData.organizationDescription = document.getElementById('organizationDescription')?.value || '';
-} else if (currentStep === 3) {
+    } else if (currentStep === 2) {
+        formData.qualification = document.getElementById('qualification')?.value || '';
+        formData.age = document.getElementById('age')?.value || '';
+        formData.position = document.getElementById('position')?.value || '';
+        formData.organization = document.getElementById('organization')?.value || '';
+        formData.organizationDescription = document.getElementById('organizationDescription')?.value || '';
+    } else if (currentStep === 3) {
         formData.whyInterested = document.getElementById('whyInterested')?.value || '';
         formData.workConnection = document.getElementById('workConnection')?.value || '';
         formData.relevantExperience = document.getElementById('relevantExperience')?.value || '';
-        formData.expectations = document.getElementById('expectations')?.value || '';
-        formData.knowledgeApplication = document.getElementById('knowledgeApplication')?.value || '';
     }
 }
 
 function restoreFormValues() {
-    // Update word count for step 2
     if (currentStep === 2) {
         setTimeout(updateWordCount, 0);
     }
@@ -433,20 +391,17 @@ function validateStep1() {
     const idCard = document.getElementById('idCard').value;
     const email = document.getElementById('email').value;
     
-    // Reset errors
     document.getElementById('idCard').classList.remove('is-invalid');
     document.getElementById('email').classList.remove('is-invalid');
     document.getElementById('idCardError').textContent = '';
     document.getElementById('emailError').textContent = '';
     
-    // Validate ID Card
     if (!idCard || idCard.length !== 13 || !/^\d{13}$/.test(idCard)) {
         document.getElementById('idCard').classList.add('is-invalid');
         document.getElementById('idCardError').textContent = 'กรุณากรอกเลขบัตรประชาชน 13 หลักให้ถูกต้อง';
         isValid = false;
     }
     
-    // Validate Email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !emailRegex.test(email)) {
         document.getElementById('email').classList.add('is-invalid');
@@ -460,7 +415,7 @@ function validateStep1() {
 function validateStep2() {
     let isValid = true;
     
-    const fields = ['qualification', 'age', 'position', 'organization', 'organizationDescription'];  // ⭐ เพิ่ม 'age'
+    const fields = ['qualification', 'age', 'position', 'organization', 'organizationDescription'];
     
     fields.forEach(field => {
         const element = document.getElementById(field);
@@ -476,7 +431,6 @@ function validateStep2() {
         }
     });
     
-    // ⭐ เพิ่ม validation พิเศษสำหรับอายุ
     const age = document.getElementById('age').value;
     if (age && (parseInt(age) < 18 || parseInt(age) > 99)) {
         document.getElementById('age').classList.add('is-invalid');
@@ -484,7 +438,6 @@ function validateStep2() {
         isValid = false;
     }
     
-    // Check word count
     const orgDesc = document.getElementById('organizationDescription').value.trim();
     const wordCount = orgDesc.length === 0 ? 0 : orgDesc.split(/\s+/).length;
     if (wordCount > 100) {
@@ -499,13 +452,7 @@ function validateStep2() {
 function validateStep3() {
     let isValid = true;
     
-    const fields = [
-        'whyInterested',
-        'workConnection',
-        'relevantExperience',
-        'expectations',
-        'knowledgeApplication'
-    ];
+    const fields = ['whyInterested', 'workConnection', 'relevantExperience'];
     
     fields.forEach(field => {
         const element = document.getElementById(field);
@@ -534,21 +481,18 @@ async function handleNext() {
     if (currentStep === 1) {
         if (!validateStep1()) return;
         
-        // แสดง loading
         showLoadingAlert('กำลังตรวจสอบข้อมูล...');
         
         try {
-            // Check duplicate
             const isDuplicate = await checkDuplicate(formData.idCard, formData.email);
             
-            Swal.close(); // ปิด loading
+            Swal.close();
             
             if (isDuplicate) {
                 renderStep(1);
                 return;
             }
             
-            // Generate Anonymous ID
             anonymousId = generateAnonymousId();
             
         } catch (error) {
@@ -566,6 +510,11 @@ async function handleNext() {
     renderStep(currentStep + 1);
 }
 
+function handlePrevious() {
+    saveFormValues();
+    renderStep(currentStep - 1);
+}
+
 // ================================
 // 🔍 CHECK DUPLICATE
 // ================================
@@ -574,8 +523,6 @@ async function checkDuplicate(idCard, email) {
     try {
         const url = `${GOOGLE_SCRIPT_URL}?action=checkDuplicate&idCard=${idCard}&email=${encodeURIComponent(email)}`;
         
-        console.log('🔍 Checking duplicate...');
-        
         const response = await fetch(url, {
             method: 'GET',
             redirect: 'follow'
@@ -583,10 +530,7 @@ async function checkDuplicate(idCard, email) {
         
         const result = await response.json();
         
-        console.log('Result:', result);
-        
         if (result.success && result.isDuplicate) {
-            // ใช้ setTimeout เพื่อให้ renderStep(1) ทำงานเสร็จก่อน
             setTimeout(() => {
                 showDuplicateModal(result.type, result.existingAnonymousId);
             }, 100);
@@ -598,7 +542,6 @@ async function checkDuplicate(idCard, email) {
     } catch (error) {
         console.error('Error checking duplicate:', error);
         
-        // ใช้ SweetAlert2 แทน confirm
         const proceed = await showConfirmAlert(
             'ไม่สามารถตรวจสอบข้อมูลซ้ำได้',
             'สาเหตุอาจเป็นเครือข่ายอินเทอร์เน็ตไม่เสถียร หรือระบบกำลังอัพเดท\n\nคุณต้องการดำเนินการต่อหรือไม่?'
@@ -617,7 +560,6 @@ async function handleSubmit() {
     
     if (!validateStep3()) return;
     
-    // ยืนยันก่อนส่ง
     const confirmed = await Swal.fire({
         title: '⚠️ ยืนยันการส่งข้อมูล',
         text: 'เมื่อกดยืนยันแล้ว จะไม่สามารถแก้ไขข้อมูลได้',
@@ -631,7 +573,6 @@ async function handleSubmit() {
     
     if (!confirmed.isConfirmed) return;
     
-    // แสดง loading
     showLoadingAlert('กำลังส่งข้อมูล...');
     
     try {
@@ -640,8 +581,6 @@ async function handleSubmit() {
             anonymousId: anonymousId,
             timestamp: new Date().toISOString()
         };
-        
-        console.log('📤 Sending data:', dataToSend);
         
         await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
@@ -652,9 +591,6 @@ async function handleSubmit() {
             body: JSON.stringify(dataToSend)
         });
         
-        console.log('✅ Request sent');
-        
-        // Wait a moment
         await new Promise(resolve => setTimeout(resolve, 2000));
         
         Swal.close();
@@ -662,21 +598,16 @@ async function handleSubmit() {
         showSuccessScreen();
         
     } catch (error) {
-        console.error('❌ Error:', error);
+        console.error('Error:', error);
         Swal.close();
         showErrorAlert('เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง');
     }
 }
 
 // ================================
-// 🎭 MODAL FUNCTIONS
-// ================================
-
-// ================================
 // 🍬 SWEETALERT2 FUNCTIONS
 // ================================
 
-// แสดงข้อมูลซ้ำ
 function showDuplicateModal(type, existingAnonymousId) {
     const title = type === 'idCard' 
         ? 'เลขบัตรประชาชนนี้เคยลงทะเบียนแล้ว' 
@@ -688,57 +619,24 @@ function showDuplicateModal(type, existingAnonymousId) {
         html: `
             <div style="text-align: left;">
                 <p>ท่านได้ลงทะเบียนเข้าหลักสูตรนี้ไปแล้ว</p>
-                
                 <div style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); 
                             border: 2px solid #dc2626; 
                             border-radius: 12px; 
                             padding: 1.25rem; 
                             text-align: center; 
                             margin: 1.5rem 0;">
-                    <small style="color: #64748b; font-size: 0.9rem;">รหัสอ้างอิงเดิมของท่าน:</small><br>
-                    <strong style="font-size: 1.75rem; 
-                                   color: #dc2626; 
-                                   letter-spacing: 2px;">
+                    <small style="color: #64748b;">รหัสอ้างอิงเดิมของท่าน:</small><br>
+                    <strong style="font-size: 1.75rem; color: #dc2626; letter-spacing: 2px;">
                         ${existingAnonymousId}
                     </strong>
-                </div>
-                
-                <div style="background: #fef3c7; 
-                            border-left: 4px solid #f59e0b; 
-                            padding: 1rem; 
-                            border-radius: 8px; 
-                            margin-top: 1rem;">
-                    <strong style="color: #92400e;">💡 ท่านสามารถ:</strong>
-                    <ul style="margin: 0.5rem 0 0 1.5rem; padding: 0;">
-                        <li style="color: #92400e; margin: 0.5rem 0;">ตรวจสอบสถานะด้วยรหัสอ้างอิงข้างต้น</li>
-                        <li style="color: #92400e; margin: 0.5rem 0;">ติดต่อเจ้าหน้าที่หากต้องการแก้ไขข้อมูล</li>
-                        <li style="color: #92400e; margin: 0.5rem 0;">รอผลการพิจารณาทางอีเมล</li>
-                    </ul>
-                </div>
-                
-                <div style="background: #dbeafe; 
-                            padding: 1rem; 
-                            border-radius: 8px; 
-                            margin-top: 1rem; 
-                            text-align: center;">
-                    <small style="color: #1e40af;">
-                        <strong>หมายเหตุ:</strong> ระบบป้องกันการลงทะเบียนซ้ำ
-                        เพื่อให้การคัดเลือกเป็นไปอย่างยุติธรรม
-                    </small>
                 </div>
             </div>
         `,
         confirmButtonText: 'เข้าใจแล้ว',
-        confirmButtonColor: '#1e3a8a',
-        width: '600px',
-        customClass: {
-            popup: 'swal-custom-popup',
-            confirmButton: 'swal-custom-button'
-        }
+        confirmButtonColor: '#1e3a8a'
     });
 }
 
-// แสดง Loading
 function showLoadingAlert(message = 'กำลังดำเนินการ...') {
     Swal.fire({
         title: message,
@@ -749,18 +647,6 @@ function showLoadingAlert(message = 'กำลังดำเนินการ.
     });
 }
 
-// แสดงความสำเร็จ
-function showSuccessAlert(title, message) {
-    Swal.fire({
-        icon: 'success',
-        title: title,
-        text: message,
-        confirmButtonText: 'ตกลง',
-        confirmButtonColor: '#059669'
-    });
-}
-
-// แสดงข้อผิดพลาด
 function showErrorAlert(message) {
     Swal.fire({
         icon: 'error',
@@ -771,7 +657,6 @@ function showErrorAlert(message) {
     });
 }
 
-// ยืนยันการกระทำ
 async function showConfirmAlert(title, message) {
     const result = await Swal.fire({
         title: title,
@@ -784,92 +669,4 @@ async function showConfirmAlert(title, message) {
         cancelButtonColor: '#64748b'
     });
     return result.isConfirmed;
-}
-
-// กำหนด default config สำหรับ SweetAlert2
-const swalMobileConfig = {
-  customClass: {
-    popup: 'swal-custom-popup',
-    confirmButton: 'swal-custom-button',
-    cancelButton: 'swal-custom-button'
-  },
-  // ปรับขนาดตามหน้าจอ
-  width: window.innerWidth < 576 ? '90%' : '600px',
-  // ปิด animation ถ้าเป็นมือถือ (เร็วขึ้น)
-  animation: window.innerWidth >= 768
-};
-
-// แก้ไข showDuplicateModal
-function showDuplicateModal(type, existingAnonymousId) {
-    const title = type === 'idCard' 
-        ? 'เลขบัตรประชาชนนี้เคยลงทะเบียนแล้ว' 
-        : 'อีเมลนี้เคยลงทะเบียนแล้ว';
-    
-    Swal.fire({
-        ...swalMobileConfig,
-        icon: 'warning',
-        title: title,
-        html: `
-            <div style="text-align: left;">
-                <p style="font-size: ${window.innerWidth < 576 ? '0.9rem' : '1rem'};">
-                    ท่านได้ลงทะเบียนเข้าหลักสูตรนี้ไปแล้ว
-                </p>
-                
-                <div style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); 
-                            border: 2px solid #dc2626; 
-                            border-radius: 12px; 
-                            padding: 1rem; 
-                            text-align: center; 
-                            margin: 1rem 0;">
-                    <small style="color: #64748b; font-size: 0.8rem;">รหัสอ้างอิงเดิมของท่าน:</small><br>
-                    <strong style="font-size: ${window.innerWidth < 576 ? '1.25rem' : '1.75rem'}; 
-                                   color: #dc2626; 
-                                   letter-spacing: ${window.innerWidth < 576 ? '1px' : '2px'}; 
-                                   word-break: break-all; 
-                                   display: block; 
-                                   margin-top: 0.5rem;">
-                        ${existingAnonymousId}
-                    </strong>
-                </div>
-                
-                <div style="background: #fef3c7; 
-                            border-left: 4px solid #f59e0b; 
-                            padding: 0.875rem; 
-                            border-radius: 8px; 
-                            margin-top: 1rem;">
-                    <strong style="color: #92400e; font-size: 0.9rem;">💡 ท่านสามารถ:</strong>
-                    <ul style="margin: 0.5rem 0 0 1.25rem; padding: 0; font-size: 0.85rem;">
-                        <li style="color: #92400e; margin: 0.4rem 0;">ตรวจสอบสถานะด้วยรหัสอ้างอิงข้างต้น</li>
-                        <li style="color: #92400e; margin: 0.4rem 0;">ติดต่อเจ้าหน้าที่หากต้องการแก้ไขข้อมูล</li>
-                        <li style="color: #92400e; margin: 0.4rem 0;">รอผลการพิจารณาทางอีเมล</li>
-                    </ul>
-                </div>
-                
-                <div style="background: #dbeafe; 
-                            padding: 0.875rem; 
-                            border-radius: 8px; 
-                            margin-top: 1rem; 
-                            text-align: center;">
-                    <small style="color: #1e40af; font-size: 0.8rem; line-height: 1.4;">
-                        <strong>หมายเหตุ:</strong> ระบบป้องกันการลงทะเบียนซ้ำ
-                        เพื่อให้การคัดเลือกเป็นไปอย่างยุติธรรม
-                    </small>
-                </div>
-            </div>
-        `,
-        confirmButtonText: 'เข้าใจแล้ว',
-        confirmButtonColor: '#1e3a8a'
-    });
-}
-
-// แก้ไข showLoadingAlert
-function showLoadingAlert(message = 'กำลังดำเนินการ...') {
-    Swal.fire({
-        ...swalMobileConfig,
-        title: message,
-        html: '<div class="spinner-border text-primary" style="width: 2.5rem; height: 2.5rem;"></div>',
-        showConfirmButton: false,
-        allowOutsideClick: false,
-        allowEscapeKey: false
-    });
 }

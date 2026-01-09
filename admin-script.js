@@ -2,7 +2,7 @@
 // 🔧 CONFIGURATION
 // ================================
 
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxHFOjY3aMK5uNsR6ABkpxMjqRofgcDaz2aFl1u7Z-SmDUus5WQe2bTYGzZiynOoSOB/exec'; // เปลี่ยนเป็น URL จาก Google Apps Script
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw6gwytlan2lTqSDRybXEb5WFpdMWqp-UOeFUxrzxvpQQu-Nc5w49I2me30TT-X_T9n/exec'; // เปลี่ยนเป็น URL จาก Google Apps Script
 const ADMIN_PASSWORD_HASH = '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8'; // 'password'
 
 // ================================
