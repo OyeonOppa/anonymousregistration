@@ -28,314 +28,129 @@ let formData = {
 // ================================
 
 document.addEventListener('DOMContentLoaded', function() {
-    renderStep(1);
+    goToStep1();
 });
 
 // ================================
-// 🎨 RENDER FUNCTIONS
+// 📄 STEP NAVIGATION FUNCTIONS
 // ================================
 
-function renderStep(step) {
-    currentStep = step;
-    updateProgressBar();
+function goToStep1() {
+    currentStep = 1;
+    saveCurrentStepData();
     
-    const formContent = document.getElementById('formContent');
+    // Hide all steps
+    document.getElementById('step1').style.display = 'block';
+    document.getElementById('step2').style.display = 'none';
+    document.getElementById('step3').style.display = 'none';
+    document.getElementById('successScreen').style.display = 'none';
     
-    switch(step) {
-        case 1:
-            formContent.innerHTML = getStep1HTML();
-            break;
-        case 2:
-            formContent.innerHTML = getStep2HTML();
-            break;
-        case 3:
-            formContent.innerHTML = getStep3HTML();
-            break;
-    }
-    
-    // Restore form values
-    restoreFormValues();
+    updateProgressIndicators();
+    restoreFormData();
 }
 
-function getStep1HTML() {
-    return `
-        <div class="step-container">
-            <div class="step-header">
-                <h2>ข้อมูลเพื่อยืนยันตัวตน</h2>
-                <p class="text-muted">
-                    ข้อมูลนี้จะถูกเข้ารหัสและใช้สำหรับยืนยันเท่านั้น ไม่แสดงต่อคณะกรรมการ
-                </p>
-            </div>
-
-            <div class="mb-4">
-                <label class="form-label required">เลขบัตรประชาชน (13 หลัก)</label>
-                <input
-                    type="text"
-                    class="form-control form-control-lg"
-                    id="idCard"
-                    placeholder="x-xxxx-xxxxx-xx-x"
-                    maxlength="13"
-                    value="${formData.idCard}"
-                />
-                <div class="invalid-feedback" id="idCardError"></div>
-                <small class="form-text text-muted">
-                    ใช้สำหรับอ้างอิงและยืนยันตัวตนเท่านั้น จะถูกเข้ารหัสก่อนบันทึก
-                </small>
-            </div>
-
-            <div class="mb-4">
-                <label class="form-label required">อีเมล</label>
-                <input
-                    type="email"
-                    class="form-control form-control-lg"
-                    id="email"
-                    placeholder="example@email.com"
-                    value="${formData.email}"
-                />
-                <div class="invalid-feedback" id="emailError"></div>
-                <small class="form-text text-muted">
-                    ใช้สำหรับส่งอีเมลยืนยันและติดต่อกลับ
-                </small>
-            </div>
-
-            <div class="alert alert-info">
-                <strong>หมายเหตุ:</strong> ข้อมูลส่วนบุคคลของท่านจะถูกเก็บเป็นความลับ 
-                คณะกรรมการจะพิจารณาจากคุณสมบัติและคำตอบเท่านั้น
-            </div>
-
-            <div class="button-group mt-4">
-                <button class="btn btn-primary btn-lg" onclick="handleNext()">
-                    ถัดไป →
-                </button>
-            </div>
-        </div>
-    `;
-}
-
-function getStep2HTML() {
-    const qualifications = [
-        'ข้าราชการ',
-        'พนักงานรัฐวิสาหกิจ',
-        'พนักงานเอกชน',
-        'อาจารย์/นักวิชาการ',
-        'อื่นๆ'
-    ];
+function goToStep2() {
+    // Validate step 1
+    if (!validateStep1()) return;
     
-    return `
-        <div class="step-container">
-            <div class="step-header">
-                <div class="anonymous-id-badge mb-3">
-                    รหัสอ้างอิง: <strong>${anonymousId}</strong>
-                </div>
-                <h2>คุณสมบัติและข้อมูลการทำงาน</h2>
-                <p class="text-muted">
-                    กรุณากรอกข้อมูลเพื่อให้คณะกรรมการพิจารณาคุณสมบัติ
-                </p>
-            </div>
-
-            <div class="mb-4">
-                <label class="form-label required">คุณสมบัติ</label>
-                <select class="form-select form-control-lg" id="qualification">
-                    <option value="">-- เลือกคุณสมบัติ --</option>
-                    ${qualifications.map(q => 
-                        `<option value="${q}" ${formData.qualification === q ? 'selected' : ''}>${q}</option>`
-                    ).join('')}
-                </select>
-                <div class="invalid-feedback" id="qualificationError"></div>
-            </div>
-
-            <div class="mb-4">
-                <label class="form-label required">อายุ</label>
-                <input
-                    type="number"
-                    class="form-control form-control-lg"
-                    id="age"
-                    placeholder="เช่น 30"
-                    min="18"
-                    max="99"
-                    value="${formData.age || ''}"
-                />
-                <div class="invalid-feedback" id="ageError"></div>
-            </div>
-
-            <div class="mb-4">
-                <label class="form-label required">ตำแหน่ง</label>
-                <input
-                    type="text"
-                    class="form-control form-control-lg"
-                    id="position"
-                    placeholder="เช่น นักวิเคราะห์นโยบายและแผน"
-                    value="${formData.position}"
-                />
-                <div class="invalid-feedback" id="positionError"></div>
-            </div>
-
-            <div class="mb-4">
-                <label class="form-label required">หน่วยงาน</label>
-                <input
-                    type="text"
-                    class="form-control form-control-lg"
-                    id="organization"
-                    placeholder="เช่น กรมส่งเสริมการปกครองท้องถิ่น"
-                    value="${formData.organization}"
-                />
-                <div class="invalid-feedback" id="organizationError"></div>
-            </div>
-
-            <div class="mb-4">
-                <label class="form-label required">
-                    คำอธิบายหน่วยงาน
-                    <span class="word-counter ms-2" id="wordCounter">(0/100 คำ)</span>
-                </label>
-                <textarea
-                    class="form-control"
-                    id="organizationDescription"
-                    rows="4"
-                    placeholder="อธิบายถึงภาระหน้าที่และบทบาทของหน่วยงานโดยย่อ"
-                    oninput="updateWordCount()"
-                >${formData.organizationDescription}</textarea>
-                <div class="invalid-feedback" id="organizationDescriptionError"></div>
-            </div>
-
-            <div class="button-group mt-4">
-                <button class="btn btn-outline-secondary btn-lg" onclick="handlePrevious()">
-                    ← ย้อนกลับ
-                </button>
-                <button class="btn btn-primary btn-lg" onclick="handleNext()">
-                    ถัดไป →
-                </button>
-            </div>
-        </div>
-    `;
-}
-
-function getStep3HTML() {
-    return `
-        <div class="step-container">
-            <div class="step-header">
-                <h2>แรงจูงใจและความคาดหวัง</h2>
-                <p class="text-muted">
-                    ส่วนนี้เป็นส่วนสำคัญที่จะช่วยคณะกรรมการเข้าใจความตั้งใจและศักยภาพของท่าน
-                    <br><strong class="text-primary">กรุณาตอบคำถาม 3 ข้อ (รวมไม่เกิน 300-450 คำ)</strong>
-                </p>
-            </div>
-
-            <div class="mb-4">
-                <label class="form-label required">
-                    1. ทำไมถึงอยากเรียนหลักสูตร 4ส และคาดหวังอะไรต่อหลักสูตร
-                </label>
-                <textarea
-                    class="form-control"
-                    id="whyInterested"
-                    rows="6"
-                    placeholder="อธิบายเหตุผลและแรงจูงใจที่ต้องการเข้าร่วมหลักสูตร (ไม่เกิน 150 คำ)"
-                >${formData.whyInterested}</textarea>
-                <div class="invalid-feedback" id="whyInterestedError"></div>
-            </div>
-
-            <div class="mb-4">
-                <label class="form-label required">
-                    2. ลักษณะงาน/งานที่ทำ มีความเชื่อมโยงกับหลักสูตรอย่างไร
-                </label>
-                <textarea
-                    class="form-control"
-                    id="workConnection"
-                    rows="6"
-                    placeholder="อธิบายความสัมพันธ์ระหว่างงานปัจจุบันกับเนื้อหาหลักสูตร (ไม่เกิน 150 คำ)"
-                >${formData.workConnection}</textarea>
-                <div class="invalid-feedback" id="workConnectionError"></div>
-            </div>
-
-            <div class="mb-4">
-                <label class="form-label required">
-                    3. ท่านจะนำองค์ความรู้จากหลักสูตรไปประยุกต์ใช้อย่างไร
-                </label>
-                <textarea
-                    class="form-control"
-                    id="relevantExperience"
-                    rows="6"
-                    placeholder="อธิบายแผนการนำความรู้ไปใช้ในการทำงานหรือพัฒนาองค์กร (ไม่เกิน 150 คำ)"
-                >${formData.relevantExperience}</textarea>
-                <div class="invalid-feedback" id="relevantExperienceError"></div>
-            </div>
-
-            <div class="alert alert-warning">
-                <strong>⚠️ โปรดตรวจสอบข้อมูลอีกครั้ง</strong><br />
-                เมื่อกดส่งข้อมูลแล้ว จะไม่สามารถแก้ไขได้
-            </div>
-
-            <div class="button-group mt-4">
-                <button class="btn btn-outline-secondary btn-lg" onclick="handlePrevious()">
-                    ← ย้อนกลับ
-                </button>
-                <button class="btn btn-success btn-lg" id="submitBtn" onclick="handleSubmit()">
-                    ส่งข้อมูล ✓
-                </button>
-            </div>
-        </div>
-    `;
-}
-
-function showSuccessScreen() {
-    const progressBar = document.getElementById('progressBar');
-    progressBar.style.display = 'none';
+    saveCurrentStepData();
     
-    const formContent = document.getElementById('formContent');
-    formContent.innerHTML = `
-        <div class="success-container">
-            <div class="success-icon">✓</div>
-            <h2>ส่งข้อมูลสำเร็จ!</h2>
-            <div class="anonymous-id-box">
-                <p class="mb-2">รหัสอ้างอิงของท่าน:</p>
-                <h3 class="text-primary">${anonymousId}</h3>
-                <small class="text-muted">
-                    กรุณาเก็บรหัสนี้ไว้สำหรับการติดตามผลการคัดเลือก
-                </small>
-            </div>
-            <p class="mt-4">
-                เราได้ส่งอีเมลยืนยันไปที่ <strong>${formData.email}</strong> แล้ว
-                <br />
-                <small class="text-muted">(กรุณาตรวจสอบใน Inbox และ Junk/Spam)</small>
-            </p>
-            <div class="d-flex gap-2 justify-content-center mt-4">
-                <a href="check-status.html?id=${anonymousId}" class="btn btn-outline-primary">
-                    ตรวจสอบสถานะ
-                </a>
-                <button class="btn btn-primary" onclick="location.reload()">
-                    กรอกข้อมูลใหม่
-                </button>
-            </div>
-        </div>
-    `;
-}
-
-// ================================
-// 🔄 HELPER FUNCTIONS
-// ================================
-
-function updateProgressBar() {
-    const progressFill = document.getElementById('progressFill');
-    const percentage = (currentStep / 3) * 100;
-    progressFill.style.width = percentage + '%';
+    // Show loading
+    showLoadingAlert('กำลังตรวจสอบข้อมูล...');
     
-    // Update step indicators
-    for (let i = 1; i <= 3; i++) {
-        const stepIndicator = document.getElementById(`step${i}Indicator`);
-        stepIndicator.classList.remove('active', 'completed');
-        
-        if (i < currentStep) {
-            stepIndicator.classList.add('completed');
-            stepIndicator.querySelector('.step-number').textContent = '✓';
-        } else if (i === currentStep) {
-            stepIndicator.classList.add('active');
-            stepIndicator.querySelector('.step-number').textContent = i;
-        } else {
-            stepIndicator.querySelector('.step-number').textContent = i;
+    // Check duplicate
+    checkDuplicate(formData.idCard, formData.email).then(isDuplicate => {
+        // ถ้าไม่ซ้ำ ปิด loading alert
+        if (!isDuplicate) {
+            Swal.close();
         }
-    }
+        
+        if (isDuplicate) {
+            console.log('Duplicate detected, staying on step 1');
+            return; // Stay on step 1
+        }
+        
+        console.log('No duplicate, proceeding to step 2');
+        
+        // Generate anonymous ID
+        anonymousId = generateAnonymousId();
+        document.getElementById('anonymousIdDisplay').textContent = anonymousId;
+        
+        // Go to step 2
+        currentStep = 2;
+        document.getElementById('step1').style.display = 'none';
+        document.getElementById('step2').style.display = 'block';
+        document.getElementById('step3').style.display = 'none';
+        
+        updateProgressIndicators();
+        restoreFormData();
+        
+        // Initialize word counter for Step 2
+        setTimeout(() => {
+            updateOrgDescCounter();
+        }, 100);
+    }).catch(error => {
+        console.error('Error in goToStep2:', error);
+        Swal.close();
+        Swal.fire({
+            icon: 'error',
+            title: 'เกิดข้อผิดพลาด',
+            text: 'ไม่สามารถดำเนินการได้ กรุณาลองใหม่อีกครั้ง',
+            confirmButtonColor: '#dc2626'
+        });
+    });
 }
 
-function saveFormValues() {
+function goToStep3() {
+    // Validate step 2
+    if (!validateStep2()) return;
+    
+    saveCurrentStepData();
+    
+    currentStep = 3;
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('step2').style.display = 'none';
+    document.getElementById('step3').style.display = 'block';
+    
+    updateProgressIndicators();
+    restoreFormData();
+    
+    // Initialize counters for Step 3
+    setTimeout(() => {
+        updateQuestionCounter('whyInterested', 150);
+        updateQuestionCounter('workConnection', 150);
+        updateQuestionCounter('relevantExperience', 150);
+    }, 100);
+}
+
+function submitForm() {
+    // Validate step 3
+    if (!validateStep3()) return;
+    
+    saveCurrentStepData();
+    
+    // Confirm submission
+    Swal.fire({
+        title: '⚠️ ยืนยันการส่งข้อมูล',
+        text: 'เมื่อกดยืนยันแล้ว จะไม่สามารถแก้ไขข้อมูลได้',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'ยืนยัน ส่งข้อมูล',
+        cancelButtonText: 'ตรวจสอบอีกครั้ง',
+        confirmButtonColor: '#059669',
+        cancelButtonColor: '#64748b'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            sendDataToGoogleSheets();
+        }
+    });
+}
+
+// ================================
+// 💾 SAVE & RESTORE DATA
+// ================================
+
+function saveCurrentStepData() {
     if (currentStep === 1) {
         formData.idCard = document.getElementById('idCard')?.value || '';
         formData.email = document.getElementById('email')?.value || '';
@@ -352,37 +167,112 @@ function saveFormValues() {
     }
 }
 
-function restoreFormValues() {
-    if (currentStep === 2) {
-        setTimeout(updateWordCount, 0);
-    }
-}
-
-function updateWordCount() {
-    const textarea = document.getElementById('organizationDescription');
-    const counter = document.getElementById('wordCounter');
-    
-    if (textarea && counter) {
-        const text = textarea.value.trim();
-        const wordCount = text.length === 0 ? 0 : text.split(/\s+/).length;
-        counter.textContent = `(${wordCount}/100 คำ)`;
-        
-        if (wordCount > 100) {
-            counter.classList.add('text-danger');
-        } else {
-            counter.classList.remove('text-danger');
+function restoreFormData() {
+    if (currentStep === 1) {
+        if (document.getElementById('idCard')) {
+            document.getElementById('idCard').value = formData.idCard;
+        }
+        if (document.getElementById('email')) {
+            document.getElementById('email').value = formData.email;
+        }
+    } else if (currentStep === 2) {
+        if (document.getElementById('qualification')) {
+            document.getElementById('qualification').value = formData.qualification;
+        }
+        if (document.getElementById('age')) {
+            document.getElementById('age').value = formData.age;
+        }
+        if (document.getElementById('position')) {
+            document.getElementById('position').value = formData.position;
+        }
+        if (document.getElementById('organization')) {
+            document.getElementById('organization').value = formData.organization;
+        }
+        if (document.getElementById('organizationDescription')) {
+            document.getElementById('organizationDescription').value = formData.organizationDescription;
+        }
+    } else if (currentStep === 3) {
+        if (document.getElementById('whyInterested')) {
+            document.getElementById('whyInterested').value = formData.whyInterested;
+        }
+        if (document.getElementById('workConnection')) {
+            document.getElementById('workConnection').value = formData.workConnection;
+        }
+        if (document.getElementById('relevantExperience')) {
+            document.getElementById('relevantExperience').value = formData.relevantExperience;
         }
     }
 }
 
-function generateAnonymousId() {
-    const year = new Date().getFullYear();
-    const random = Math.random().toString(36).substring(2, 8).toUpperCase();
-    return `ANO-${year}-${random}`;
+// ================================
+// 📊 CHARACTER COUNTER (NEW!)
+// ================================
+
+function updateOrgDescCounter() {
+    const textarea = document.getElementById('organizationDescription');
+    const counter = document.getElementById('wordCount');
+    
+    if (!textarea || !counter) return;
+    
+    const text = textarea.value.trim();
+    // นับตัวอักษร ไม่รวมเว้นวรรค
+    const charCount = text.replace(/\s/g, '').length;
+    
+    counter.textContent = charCount;
+    
+    // Update counter color
+    const counterSpan = counter.parentElement;
+    if (charCount > 100) {
+        counterSpan.style.color = '#dc2626';
+        counterSpan.style.fontWeight = '700';
+    } else if (charCount > 0) {
+        counterSpan.style.color = '#059669';
+        counterSpan.style.fontWeight = '600';
+    } else {
+        counterSpan.style.color = '#64748b';
+        counterSpan.style.fontWeight = '500';
+    }
+    
+    // Show/hide warning
+    const warning = document.getElementById('wordCountWarning');
+    if (warning) {
+        warning.style.display = charCount > 100 ? 'block' : 'none';
+    }
+}
+
+function updateQuestionCounter(fieldId, maxChars) {
+    const textarea = document.getElementById(fieldId);
+    if (!textarea) return;
+    
+    const text = textarea.value.trim();
+    const charCount = text.replace(/\s/g, '').length;
+    
+    // Find counter element based on fieldId
+    let counterId;
+    if (fieldId === 'whyInterested') counterId = 'counter1';
+    else if (fieldId === 'workConnection') counterId = 'counter2';
+    else if (fieldId === 'relevantExperience') counterId = 'counter3';
+    
+    const counter = document.getElementById(counterId);
+    if (!counter) return;
+    
+    counter.textContent = `(${charCount}/${maxChars} ตัวอักษร)`;
+    
+    // Update color
+    if (charCount > maxChars) {
+        counter.style.color = '#dc2626';
+        counter.style.fontWeight = '700';
+    } else if (charCount > 0) {
+        counter.style.color = '#059669';
+        counter.style.fontWeight = '600';
+    } else {
+        counter.style.color = '#64748b';
+        counter.style.fontWeight = '500';
+    }
 }
 
 // ================================
-// 🔍 VALIDATION
+// ✅ VALIDATION
 // ================================
 
 function validateStep1() {
@@ -391,21 +281,22 @@ function validateStep1() {
     const idCard = document.getElementById('idCard').value;
     const email = document.getElementById('email').value;
     
+    // Reset errors
     document.getElementById('idCard').classList.remove('is-invalid');
     document.getElementById('email').classList.remove('is-invalid');
-    document.getElementById('idCardError').textContent = '';
-    document.getElementById('emailError').textContent = '';
     
+    // Validate ID Card
     if (!idCard || idCard.length !== 13 || !/^\d{13}$/.test(idCard)) {
         document.getElementById('idCard').classList.add('is-invalid');
-        document.getElementById('idCardError').textContent = 'กรุณากรอกเลขบัตรประชาชน 13 หลักให้ถูกต้อง';
+        document.querySelector('#idCard + .invalid-feedback').textContent = 'กรุณากรอกเลขบัตรประชาชน 13 หลักให้ถูกต้อง';
         isValid = false;
     }
     
+    // Validate Email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !emailRegex.test(email)) {
         document.getElementById('email').classList.add('is-invalid');
-        document.getElementById('emailError').textContent = 'กรุณากรอกอีเมลให้ถูกต้อง';
+        document.querySelector('#email + .invalid-feedback').textContent = 'กรุณากรอกอีเมลให้ถูกต้อง';
         isValid = false;
     }
     
@@ -415,34 +306,48 @@ function validateStep1() {
 function validateStep2() {
     let isValid = true;
     
-    const fields = ['qualification', 'age', 'position', 'organization', 'organizationDescription'];
+    const fields = [
+        'qualification',
+        'age',
+        'position',
+        'organization',
+        'organizationDescription'
+    ];
     
-    fields.forEach(field => {
-        const element = document.getElementById(field);
-        const errorElement = document.getElementById(field + 'Error');
+    fields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        field.classList.remove('is-invalid');
         
-        element.classList.remove('is-invalid');
-        errorElement.textContent = '';
-        
-        if (!element.value.trim()) {
-            element.classList.add('is-invalid');
-            errorElement.textContent = 'กรุณากรอกข้อมูลนี้';
+        if (!field.value.trim()) {
+            field.classList.add('is-invalid');
+            const feedback = field.parentElement.querySelector('.invalid-feedback');
+            if (feedback) {
+                feedback.textContent = 'กรุณากรอกข้อมูลนี้';
+            }
             isValid = false;
         }
     });
     
+    // Validate age range
     const age = document.getElementById('age').value;
     if (age && (parseInt(age) < 18 || parseInt(age) > 99)) {
         document.getElementById('age').classList.add('is-invalid');
-        document.getElementById('ageError').textContent = 'กรุณากรอกอายุระหว่าง 18-99 ปี';
+        const feedback = document.querySelector('#age + .invalid-feedback');
+        if (feedback) {
+            feedback.textContent = 'กรุณากรอกอายุระหว่าง 18-99 ปี';
+        }
         isValid = false;
     }
     
+    // Validate organization description character count
     const orgDesc = document.getElementById('organizationDescription').value.trim();
-    const wordCount = orgDesc.length === 0 ? 0 : orgDesc.split(/\s+/).length;
-    if (wordCount > 100) {
+    const charCount = orgDesc.replace(/\s/g, '').length;
+    if (charCount > 100) {
         document.getElementById('organizationDescription').classList.add('is-invalid');
-        document.getElementById('organizationDescriptionError').textContent = 'เกินจำนวนคำที่กำหนด';
+        const feedback = document.querySelector('#organizationDescription + .invalid-feedback');
+        if (feedback) {
+            feedback.textContent = `เกินจำนวนตัวอักษรที่กำหนด (${charCount}/100 ตัวอักษร)`;
+        }
         isValid = false;
     }
     
@@ -451,68 +356,42 @@ function validateStep2() {
 
 function validateStep3() {
     let isValid = true;
+    const maxChars = 150;
     
-    const fields = ['whyInterested', 'workConnection', 'relevantExperience'];
+    const questions = [
+        { id: 'whyInterested', name: 'คำถามที่ 1' },
+        { id: 'workConnection', name: 'คำถามที่ 2' },
+        { id: 'relevantExperience', name: 'คำถามที่ 3' }
+    ];
     
-    fields.forEach(field => {
-        const element = document.getElementById(field);
-        const errorElement = document.getElementById(field + 'Error');
+    questions.forEach(q => {
+        const field = document.getElementById(q.id);
+        field.classList.remove('is-invalid');
         
-        element.classList.remove('is-invalid');
-        errorElement.textContent = '';
+        const text = field.value.trim();
         
-        if (!element.value.trim()) {
-            element.classList.add('is-invalid');
-            errorElement.textContent = 'กรุณากรอกข้อมูลนี้';
+        if (!text) {
+            field.classList.add('is-invalid');
+            const feedback = field.parentElement.querySelector('.invalid-feedback');
+            if (feedback) {
+                feedback.textContent = 'กรุณากรอกข้อมูลนี้';
+            }
             isValid = false;
+        } else {
+            // Check character count
+            const charCount = text.replace(/\s/g, '').length;
+            if (charCount > maxChars) {
+                field.classList.add('is-invalid');
+                const feedback = field.parentElement.querySelector('.invalid-feedback');
+                if (feedback) {
+                    feedback.textContent = `เกินจำนวนตัวอักษรที่กำหนด (${charCount}/${maxChars} ตัวอักษร)`;
+                }
+                isValid = false;
+            }
         }
     });
     
     return isValid;
-}
-
-// ================================
-// 🔄 NAVIGATION
-// ================================
-
-async function handleNext() {
-    saveFormValues();
-    
-    if (currentStep === 1) {
-        if (!validateStep1()) return;
-        
-        showLoadingAlert('กำลังตรวจสอบข้อมูล...');
-        
-        try {
-            const isDuplicate = await checkDuplicate(formData.idCard, formData.email);
-            
-            Swal.close();
-            
-            if (isDuplicate) {
-                renderStep(1);
-                return;
-            }
-            
-            anonymousId = generateAnonymousId();
-            
-        } catch (error) {
-            console.error('Error in handleNext:', error);
-            Swal.close();
-            showErrorAlert('เกิดข้อผิดพลาดในการตรวจสอบข้อมูล กรุณาลองใหม่อีกครั้ง');
-            renderStep(1);
-            return;
-        }
-        
-    } else if (currentStep === 2) {
-        if (!validateStep2()) return;
-    }
-    
-    renderStep(currentStep + 1);
-}
-
-function handlePrevious() {
-    saveFormValues();
-    renderStep(currentStep - 1);
 }
 
 // ================================
@@ -530,10 +409,17 @@ async function checkDuplicate(idCard, email) {
         
         const result = await response.json();
         
+        console.log('Check duplicate result:', result);
+        
         if (result.success && result.isDuplicate) {
+            // ปิด loading alert ก่อน
+            Swal.close();
+            
+            // รอสักครู่แล้วแสดง duplicate modal
             setTimeout(() => {
                 showDuplicateModal(result.type, result.existingAnonymousId);
-            }, 100);
+            }, 300);
+            
             return true;
         }
         
@@ -542,37 +428,29 @@ async function checkDuplicate(idCard, email) {
     } catch (error) {
         console.error('Error checking duplicate:', error);
         
-        const proceed = await showConfirmAlert(
-            'ไม่สามารถตรวจสอบข้อมูลซ้ำได้',
-            'สาเหตุอาจเป็นเครือข่ายอินเทอร์เน็ตไม่เสถียร หรือระบบกำลังอัพเดท\n\nคุณต้องการดำเนินการต่อหรือไม่?'
-        );
+        // ปิด loading alert
+        Swal.close();
         
-        return !proceed;
+        const proceed = await Swal.fire({
+            title: 'ไม่สามารถตรวจสอบข้อมูลซ้ำได้',
+            text: 'สาเหตุอาจเป็นเครือข่ายอินเทอร์เน็ตไม่เสถียร\n\nคุณต้องการดำเนินการต่อหรือไม่?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'ใช่, ดำเนินการต่อ',
+            cancelButtonText: 'ยกเลิก',
+            confirmButtonColor: '#1e3a8a',
+            cancelButtonColor: '#64748b'
+        });
+        
+        return !proceed.isConfirmed;
     }
 }
 
 // ================================
-// 📤 SUBMIT
+// 📤 SEND TO GOOGLE SHEETS
 // ================================
 
-async function handleSubmit() {
-    saveFormValues();
-    
-    if (!validateStep3()) return;
-    
-    const confirmed = await Swal.fire({
-        title: '⚠️ ยืนยันการส่งข้อมูล',
-        text: 'เมื่อกดยืนยันแล้ว จะไม่สามารถแก้ไขข้อมูลได้',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'ยืนยัน ส่งข้อมูล',
-        cancelButtonText: 'ตรวจสอบอีกครั้ง',
-        confirmButtonColor: '#059669',
-        cancelButtonColor: '#64748b'
-    });
-    
-    if (!confirmed.isConfirmed) return;
-    
+async function sendDataToGoogleSheets() {
     showLoadingAlert('กำลังส่งข้อมูล...');
     
     try {
@@ -591,6 +469,7 @@ async function handleSubmit() {
             body: JSON.stringify(dataToSend)
         });
         
+        // Wait a bit for processing
         await new Promise(resolve => setTimeout(resolve, 2000));
         
         Swal.close();
@@ -600,13 +479,77 @@ async function handleSubmit() {
     } catch (error) {
         console.error('Error:', error);
         Swal.close();
-        showErrorAlert('เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง');
+        
+        Swal.fire({
+            icon: 'error',
+            title: 'เกิดข้อผิดพลาด',
+            text: 'ไม่สามารถส่งข้อมูลได้ กรุณาลองใหม่อีกครั้ง',
+            confirmButtonColor: '#dc2626'
+        });
     }
 }
 
 // ================================
-// 🍬 SWEETALERT2 FUNCTIONS
+// ✨ SUCCESS SCREEN
 // ================================
+
+function showSuccessScreen() {
+    document.getElementById('progressBar').style.display = 'none';
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('step2').style.display = 'none';
+    document.getElementById('step3').style.display = 'none';
+    document.getElementById('successScreen').style.display = 'block';
+    
+    document.getElementById('finalAnonymousId').textContent = anonymousId;
+    document.getElementById('finalEmail').textContent = formData.email;
+}
+
+// ================================
+// 🎨 UI HELPERS
+// ================================
+
+function updateProgressIndicators() {
+    const steps = [1, 2, 3];
+    
+    steps.forEach(step => {
+        const indicator = document.getElementById(`step${step}Indicator`);
+        
+        if (step < currentStep) {
+            indicator.classList.remove('active');
+            indicator.classList.add('completed');
+        } else if (step === currentStep) {
+            indicator.classList.add('active');
+            indicator.classList.remove('completed');
+        } else {
+            indicator.classList.remove('active', 'completed');
+        }
+    });
+    
+    // Update progress bar
+    const progressFill = document.getElementById('progressFill');
+    const percentage = (currentStep / 3) * 100;
+    progressFill.style.width = percentage + '%';
+}
+
+function generateAnonymousId() {
+    const year = new Date().getFullYear();
+    const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+    return `ANO-${year}-${random}`;
+}
+
+// ================================
+// 🍬 SWEETALERT2 HELPERS
+// ================================
+
+function showLoadingAlert(message) {
+    Swal.fire({
+        title: message,
+        html: '<div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>',
+        showConfirmButton: false,
+        allowOutsideClick: false,
+        allowEscapeKey: false
+    });
+}
 
 function showDuplicateModal(type, existingAnonymousId) {
     const title = type === 'idCard' 
@@ -637,36 +580,13 @@ function showDuplicateModal(type, existingAnonymousId) {
     });
 }
 
-function showLoadingAlert(message = 'กำลังดำเนินการ...') {
-    Swal.fire({
-        title: message,
-        html: '<div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>',
-        showConfirmButton: false,
-        allowOutsideClick: false,
-        allowEscapeKey: false
-    });
-}
+// ================================
+// 🎯 EXPOSE FUNCTIONS TO HTML
+// ================================
 
-function showErrorAlert(message) {
-    Swal.fire({
-        icon: 'error',
-        title: 'เกิดข้อผิดพลาด',
-        text: message,
-        confirmButtonText: 'ลองอีกครั้ง',
-        confirmButtonColor: '#dc2626'
-    });
-}
-
-async function showConfirmAlert(title, message) {
-    const result = await Swal.fire({
-        title: title,
-        text: message,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'ใช่, ดำเนินการต่อ',
-        cancelButtonText: 'ยกเลิก',
-        confirmButtonColor: '#1e3a8a',
-        cancelButtonColor: '#64748b'
-    });
-    return result.isConfirmed;
-}
+window.goToStep1 = goToStep1;
+window.goToStep2 = goToStep2;
+window.goToStep3 = goToStep3;
+window.submitForm = submitForm;
+window.updateOrgDescCounter = updateOrgDescCounter;
+window.updateQuestionCounter = updateQuestionCounter;

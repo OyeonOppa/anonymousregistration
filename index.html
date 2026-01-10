@@ -1,12 +1,8 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-        <meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#667eea">
     <title>แบบฟอร์มแจ้งความประสงค์เข้าคัดเลือกหลักสูตร 4ส รุ่นที่ 16</title>
     
     <!-- Google Fonts -->
@@ -17,54 +13,11 @@
     <link rel="stylesheet" href="style.css">
 
     <!-- SweetAlert2 -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <div class="app-container">
-        <!-- Loading Overlay -->
-        <div id="loadingOverlay" class="loading-overlay" style="display: none;">
-            <div class="spinner"></div>
-            <p id="loadingText">กำลังตรวจสอบข้อมูล...</p>
-        </div>
-
-        <!-- Modal แสดงข้อมูลซ้ำ -->
-        <div id="duplicateModal" class="modal-overlay" style="display: none;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2 id="modalTitle">⚠️ เลขบัตรประชาชนนี้เคยลงทะเบียนแล้ว</h2>
-                </div>
-                <div class="modal-body">
-                    <div class="duplicate-info">
-                        <p>ท่านได้ลงทะเบียนเข้าหลักสูตรนี้ไปแล้ว</p>
-                        <div class="anonymous-id-display">
-                            <label>รหัสอ้างอิงเดิมของท่าน:</label>
-                            <div class="id-box" id="existingAnonymousId">ANO-2026-XXXXXX</div>
-                        </div>
-                        <div class="help-text">
-                            <p><strong>💡 ท่านสามารถ:</strong></p>
-                            <ul>
-                                <li>ตรวจสอบสถานะด้วยรหัสอ้างอิงข้างต้น</li>
-                                <li>ติดต่อเจ้าหน้าที่หากต้องการแก้ไขข้อมูล</li>
-                                <li>รอผลการพิจารณาทางอีเมล</li>
-                            </ul>
-                        </div>
-                        <div class="alert alert-info">
-                            <small>
-                                <strong>หมายเหตุ:</strong> ระบบป้องกันการลงทะเบียนซ้ำ
-                                เพื่อให้การคัดเลือกเป็นไปอย่างยุติธรรม
-                            </small>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary btn-lg" onclick="closeDuplicateModal()">
-                        เข้าใจแล้ว
-                    </button>
-                </div>
-            </div>
-        </div>
-
         <div class="form-wrapper">
             <!-- Header -->
             <div class="text-center mb-4">
@@ -88,7 +41,7 @@
                     </div>
                     <div class="progress-step" id="step3Indicator">
                         <div class="step-number">3</div>
-                        <div class="step-label">แรงจูงใจ</div>
+                        <div class="step-label">คำถาม</div>
                     </div>
                 </div>
             </div>
@@ -199,16 +152,17 @@
                         <label class="form-label required">
                             คำอธิบายหน่วยงาน
                             <span class="word-counter ms-2">
-                                (<span id="wordCount">0</span>/100 คำ)
+                                (<span id="wordCount">0</span>/100 ตัวอักษร)
                             </span>
                         </label>
                         <textarea id="organizationDescription" 
                                   class="form-control" 
                                   rows="4" 
-                                  placeholder="อธิบายถึงภาระหน้าที่และบทบาทของหน่วยงานโดยย่อ"></textarea>
+                                  placeholder="อธิบายถึงภาระหน้าที่และบทบาทของหน่วยงานโดยย่อ (ไม่เกิน 100 ตัวอักษร)"
+                                  oninput="updateOrgDescCounter()"></textarea>
                         <div class="invalid-feedback"></div>
                         <small class="text-danger" id="wordCountWarning" style="display: none;">
-                            เกินจำนวนคำที่กำหนด
+                            เกินจำนวนตัวอักษรที่กำหนด
                         </small>
                     </div>
 
@@ -222,45 +176,52 @@
                     </div>
                 </div>
 
-                <!-- Step 3: แรงจูงใจ -->
+                <!-- Step 3: คำถาม -->
                 <div id="step3" class="step-container" style="display: none;">
                     <div class="step-header">
-                        <h2>แรงจูงใจและความคาดหวัง</h2>
+                        <h2>คำถาม</h2>
                         <p class="text-muted">
                             ส่วนนี้เป็นส่วนสำคัญที่จะช่วยคณะกรรมการเข้าใจความตั้งใจและศักยภาพของท่าน
+                            <br><strong class="text-primary">กรุณาตอบคำถาม 3 ข้อ (แต่ละข้อไม่เกิน 150 ตัวอักษร)</strong>
                         </p>
                     </div>
 
                     <div class="form-group mb-4">
                         <label class="form-label required">
                             1. ทำไมถึงอยากเรียนหลักสูตร 4ส และคาดหวังอะไรต่อหลักสูตร
+                            <span class="word-counter" id="counter1">(0/150 ตัวอักษร)</span>
                         </label>
                         <textarea id="whyInterested" 
                                   class="form-control" 
                                   rows="4" 
-                                  placeholder="อธิบายเหตุผลและแรงจูงใจที่ต้องการเข้าร่วมหลักสูตร"></textarea>
+                                  placeholder="อธิบายเหตุผลและความคาดหวังที่ต้องการเข้าร่วมหลักสูตร (ไม่เกิน 150 ตัวอักษร)"
+                                  oninput="updateQuestionCounter('whyInterested', 150)"></textarea>
                         <div class="invalid-feedback"></div>
                     </div>
 
                     <div class="form-group mb-4">
                         <label class="form-label required">
                             2. ลักษณะงาน/งานที่ทำ มีความเชื่อมโยงกับหลักสูตรอย่างไร
+                            <span class="word-counter" id="counter2">(0/150 ตัวอักษร)</span>
                         </label>
                         <textarea id="workConnection" 
                                   class="form-control" 
                                   rows="4" 
-                                  placeholder="อธิบายความสัมพันธ์ระหว่างงานปัจจุบันกับเนื้อหาหลักสูตร"></textarea>
+                                  placeholder="อธิบายความสัมพันธ์ระหว่างงานปัจจุบันกับเนื้อหาหลักสูตร (ไม่เกิน 150 ตัวอักษร)"
+                                  oninput="updateQuestionCounter('workConnection', 150)"></textarea>
                         <div class="invalid-feedback"></div>
                     </div>
 
                     <div class="form-group mb-4">
                         <label class="form-label required">
                             3. ท่านจะนำองค์ความรู้จากหลักสูตรไปประยุกต์ใช้อย่างไร
+                            <span class="word-counter" id="counter3">(0/150 ตัวอักษร)</span>
                         </label>
                         <textarea id="relevantExperience" 
                                   class="form-control" 
                                   rows="4" 
-                                  placeholder="ระบุประสบการณ์หรือโครงการที่เคยทำที่เกี่ยวข้อง"></textarea>
+                                  placeholder="อธิบายแผนการนำความรู้ไปใช้ในการทำงานหรือพัฒนาองค์กร (ไม่เกิน 150 ตัวอักษร)"
+                                  oninput="updateQuestionCounter('relevantExperience', 150)"></textarea>
                         <div class="invalid-feedback"></div>
                     </div>
 
