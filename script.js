@@ -117,9 +117,9 @@ function goToStep3() {
     
     // Initialize counters for Step 3
     setTimeout(() => {
-        updateQuestionCounter('whyInterested', 150);
-        updateQuestionCounter('workConnection', 150);
-        updateQuestionCounter('relevantExperience', 150);
+        updateQuestionCounter('whyInterested', 500);
+        updateQuestionCounter('workConnection', 500);
+        updateQuestionCounter('relevantExperience', 500);
     }, 100);
 }
 
@@ -356,7 +356,7 @@ function validateStep2() {
 
 function validateStep3() {
     let isValid = true;
-    const maxChars = 150;
+    const maxChars = 500;
     
     const questions = [
         { id: 'whyInterested', name: 'คำถามที่ 1' },

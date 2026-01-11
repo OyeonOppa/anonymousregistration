@@ -5,6 +5,12 @@
 
 async function generateApplicationPDF(formData) {
     try {
+        console.log('=== PDF Generator Debug ===');
+        console.log('Full formData:', formData);
+        console.log('whyInterested:', formData.whyInterested, 'Type:', typeof formData.whyInterested);
+        console.log('workConnection:', formData.workConnection, 'Type:', typeof formData.workConnection);
+        console.log('relevantExperience:', formData.relevantExperience, 'Type:', typeof formData.relevantExperience);
+        
         // 1. สร้าง Canvas
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
@@ -45,7 +51,7 @@ async function generateApplicationPDF(formData) {
         // 5. คำถาม 3 ข้อ (ตัดบรรทัดภาษาไทย)
         // ===================================
         ctx.font = '28px "Noto Sans Thai", "Sarabun", sans-serif';
-        const lineHeight = 38;
+        const lineHeight = 56; // ระยะห่างระหว่างบรรทัด
         const maxWidth = 1250; // เพิ่มความกว้างให้พอดีกรอบ
         const leftMargin = 200; // ระยะห่างจากซ้าย
         
@@ -61,7 +67,7 @@ async function generateApplicationPDF(formData) {
         });
         
         // คำถาม 2: y เริ่มต้น 1270
-        yPos = 1310;
+        yPos = 1315;
         const maxY2 = 1450; // ความสูงสุดของกรอบคำถาม 2
         const q2Lines = wrapTextThai(ctx, formData.workConnection || '', maxWidth);
         q2Lines.forEach(line => {
@@ -131,6 +137,12 @@ function loadImage(url) {
 // ตัดข้อความภาษาไทย (ตัดทีละตัวอักษร ไม่ใช่ทีละคำ)
 function wrapTextThai(ctx, text, maxWidth) {
     const lines = [];
+    
+    // เช็คว่า text เป็น string หรือไม่
+    if (!text || typeof text !== 'string') {
+        return lines; // return empty array
+    }
+    
     let currentLine = '';
     
     // แยกเป็นตัวอักษร
