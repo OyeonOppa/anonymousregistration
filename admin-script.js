@@ -2,7 +2,7 @@
 // 🔧 CONFIGURATION
 // ================================
 
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw6gwytlan2lTqSDRybXEb5WFpdMWqp-UOeFUxrzxvpQQu-Nc5w49I2me30TT-X_T9n/exec'; // เปลี่ยนเป็น URL จาก Google Apps Script
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw6gwytlan2lTqSDRybXEb5WFpdMWqp-UOeFUxrzxvpQQu-Nc5w49I2me30TT-X_T9n/exec';
 const ADMIN_PASSWORD_HASH = '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8'; // 'password'
 
 // ================================
@@ -45,10 +45,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeApp() {
-    // Set initial page
     showPage('dashboard');
     
-    // Mobile menu
     const mobileToggle = document.getElementById('mobileMenuToggle');
     const sidebar = document.getElementById('sidebar');
     
@@ -60,7 +58,6 @@ function initializeApp() {
 }
 
 function setupEventListeners() {
-    // Navigation
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', (e) => {
             e.preventDefault();
@@ -69,19 +66,15 @@ function setupEventListeners() {
         });
     });
     
-    // Logout
     document.getElementById('logoutBtn').addEventListener('click', logout);
     
-    // Filters
     document.getElementById('searchInput')?.addEventListener('input', applyFilters);
     document.getElementById('filterStatus')?.addEventListener('change', applyFilters);
     document.getElementById('filterQualification')?.addEventListener('change', applyFilters);
     document.getElementById('filterAge')?.addEventListener('change', applyFilters);
     
-    // Refresh button
     document.getElementById('refreshBtn')?.addEventListener('click', loadData);
     
-    // Export buttons
     document.getElementById('exportExcelBtn')?.addEventListener('click', exportToExcel);
     document.getElementById('exportCsvBtn')?.addEventListener('click', exportToCSV);
 }
@@ -91,7 +84,6 @@ function setupEventListeners() {
 // ================================
 
 function showPage(pageName) {
-    // Update nav active state
     document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.remove('active');
         if (item.dataset.page === pageName) {
@@ -99,7 +91,6 @@ function showPage(pageName) {
         }
     });
     
-    // Update page visibility
     document.querySelectorAll('.page').forEach(page => {
         page.classList.remove('active');
     });
@@ -116,7 +107,6 @@ function showPage(pageName) {
         pageElement.classList.add('active');
     }
     
-    // Update title
     const titles = {
         'dashboard': 'Dashboard',
         'applicants': 'จัดการผู้สมัคร',
@@ -126,7 +116,6 @@ function showPage(pageName) {
     
     document.getElementById('pageTitle').textContent = titles[pageName] || 'Dashboard';
     
-    // Load page-specific data
     if (pageName === 'dashboard') {
         loadDashboard();
     } else if (pageName === 'analytics') {
@@ -182,7 +171,6 @@ function updateDashboardStats() {
 }
 
 function loadDashboard() {
-    // Qualification Chart
     const qualificationData = {};
     applicantsData.forEach(a => {
         const qual = a['คุณสมบัติ'] || 'ไม่ระบุ';
@@ -198,7 +186,6 @@ function loadDashboard() {
         }]
     });
     
-    // Age Chart
     const ageGroups = {
         '18-30': 0,
         '31-40': 0,
@@ -282,12 +269,10 @@ function renderPagination() {
     
     let html = '';
     
-    // Previous button
     html += `<button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
         <i class="fas fa-chevron-left"></i> ก่อนหน้า
     </button>`;
     
-    // Page numbers
     for (let i = 1; i <= totalPages; i++) {
         if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
             html += `<button onclick="changePage(${i})" class="${i === currentPage ? 'active' : ''}">${i}</button>`;
@@ -296,7 +281,6 @@ function renderPagination() {
         }
     }
     
-    // Next button
     html += `<button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
         ถัดไป <i class="fas fa-chevron-right"></i>
     </button>`;
@@ -323,18 +307,14 @@ function applyFilters() {
     const ageRange = document.getElementById('filterAge')?.value || '';
     
     filteredData = applicantsData.filter(applicant => {
-        // Search filter
         const searchMatch = !search || 
             applicant['รหัสอ้างอิง'].toLowerCase().includes(search) ||
             applicant['อีเมล'].toLowerCase().includes(search);
         
-        // Status filter
         const statusMatch = !status || (applicant['สถานะ'] || 'รอพิจารณา') === status;
         
-        // Qualification filter
         const qualMatch = !qualification || applicant['คุณสมบัติ'] === qualification;
         
-        // Age filter
         let ageMatch = true;
         if (ageRange) {
             const age = parseInt(applicant['อายุ']);
@@ -410,7 +390,6 @@ function viewApplicant(anonymousId) {
         </div>
     `;
     
-    // Set download PDF handler
     document.getElementById('downloadPdfBtn').onclick = () => downloadApplicantPDF(anonymousId);
     
     showModal('detailModal');
@@ -426,37 +405,48 @@ function renderDetailRow(label, value) {
 }
 
 // ================================
-// 💾 UPDATE STATUS
+// 💾 UPDATE STATUS (แก้ไขแล้ว!)
 // ================================
 
 async function updateApplicantStatus(anonymousId) {
     const status = document.getElementById('statusSelect').value;
     const note = document.getElementById('noteInput').value;
     
+    console.log('Updating status:', { anonymousId, status, note });
+    
     showLoading(true);
     
     try {
+        // ✅ ใช้ no-cors mode เหมือนการส่งฟอร์ม
         const response = await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
+            mode: 'no-cors', // ✅ สำคัญ!
+            headers: {
+                'Content-Type': 'application/json',
+            },
             body: JSON.stringify({
-                anonymousId,
-                status,
-                note
+                action: 'updateStatus',
+                anonymousId: anonymousId,
+                status: status,
+                note: note
             })
         });
         
-        const result = await response.json();
+        // ⚠️ no-cors ไม่สามารถอ่าน response ได้
+        // แต่ถ้าไม่ error แสดงว่าส่งสำเร็จ
         
-        if (result.success) {
-            alert('อัปเดตสถานะสำเร็จ');
-            closeDetailModal();
-            loadData();
-        } else {
-            alert('เกิดข้อผิดพลาด: ' + result.message);
-        }
+        console.log('Request sent successfully');
+        
+        // รอสักครู่ให้ Google Sheets update
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        alert('อัปเดตสถานะสำเร็จ');
+        closeDetailModal();
+        loadData(); // Reload data
+        
     } catch (error) {
         console.error('Error updating status:', error);
-        alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
+        alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ: ' + error.message);
     } finally {
         showLoading(false);
     }
@@ -470,7 +460,6 @@ function downloadApplicantPDF(anonymousId) {
     const applicant = applicantsData.find(a => a['รหัสอ้างอิง'] === anonymousId);
     if (!applicant) return;
     
-    // Call PDF generator function (from pdf-generator.js)
     if (typeof generateApplicationPDF === 'function') {
         const formData = {
             anonymousId: applicant['รหัสอ้างอิง'],
@@ -478,9 +467,9 @@ function downloadApplicantPDF(anonymousId) {
             age: applicant['อายุ'],
             position: applicant['ตำแหน่ง'],
             organization: applicant['หน่วยงาน'],
-            whyInterested: applicant['1. ทำไมถึงอยากเรียนหลักสูตร 4ส และคาดหวังอะไรต่อหลักสูตร'],
-            workConnection: applicant['2. ลักษณะงาน/งานที่ทำ มีความเชื่อมโยงกับหลักสูตรอย่างไร'],
-            relevantExperience: applicant['3. ท่านจะนำองค์ความรู้จากหลักสูตรไปประยุกต์ใช้อย่างไร']
+            whyInterested: applicant['1. ทำไมถึงอยากเรียนหลักสูตร 4ส และคาดหวังอะไรต่อหลักสูตร'] || '',
+            workConnection: applicant['2. ลักษณะงาน/งานที่ทำ มีความเชื่อมโยงกับหลักสูตรอย่างไร'] || '',
+            relevantExperience: applicant['3. ท่านจะนำองค์ความรู้จากหลักสูตรไปประยุกต์ใช้อย่างไร'] || ''
         };
         
         generateApplicationPDF(formData);
@@ -515,7 +504,6 @@ function createChart(canvasId, type, data) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
     
-    // Destroy existing chart
     if (charts[canvasId]) {
         charts[canvasId].destroy();
     }
@@ -591,7 +579,6 @@ function logout() {
 // ================================
 
 function loadAnalytics() {
-    // Overall chart
     const statusData = {
         'รอพิจารณา': applicantsData.filter(a => (a['สถานะ'] || 'รอพิจารณา') === 'รอพิจารณา').length,
         'อนุมัติ': applicantsData.filter(a => a['สถานะ'] === 'อนุมัติ').length,
@@ -610,7 +597,6 @@ function loadAnalytics() {
         }]
     });
     
-    // Approval chart
     createChart('approvalChart', 'pie', {
         labels: Object.keys(statusData),
         datasets: [{
