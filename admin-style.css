@@ -907,3 +907,55 @@ tbody td {
         gap: 0.5rem;
     }
 }
+
+/* แก้ไขส่วนคำตอบใน modal - ไม่ให้เว้นบรรทัดเยอะ */
+.modal-body {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;  /* เปลี่ยนเป็น normal */
+}
+
+.modal-body p,
+.modal-body div {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;  /* เปลี่ยนเป็น normal */
+    max-width: 100%;
+}
+
+/* ควบคุมความสูง modal */
+.modal-content {
+    max-width: 100%;
+    overflow: hidden;
+    max-height: 90vh;  /* จำกัดความสูง */
+}
+
+.modal-body {
+    overflow-y: auto;
+    max-height: calc(90vh - 200px);
+    padding: 20px;
+}
+
+/* ป้องกันไม่ให้ header และ footer หาย */
+.modal-header {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-footer {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    z-index: 10;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* ลด spacing */
+.modal-body p {
+    margin-bottom: 0.5rem;
+}

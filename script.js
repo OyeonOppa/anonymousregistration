@@ -2,7 +2,7 @@
 // ⚙️ CONFIGURATION
 // ================================
 
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw6gwytlan2lTqSDRybXEb5WFpdMWqp-UOeFUxrzxvpQQu-Nc5w49I2me30TT-X_T9n/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwupr-8gkWmSFhOpRvvmvZXUtuvq_yvkX2LT1b5v5TN0UOsoG4B3Gb57UbXK6LsMmon/exec';
 
 // ================================
 // 📝 STATE MANAGEMENT
@@ -117,9 +117,9 @@ function goToStep3() {
     
     // Initialize counters for Step 3
     setTimeout(() => {
-        updateQuestionCounter('whyInterested', 500);
-        updateQuestionCounter('workConnection', 500);
-        updateQuestionCounter('relevantExperience', 500);
+        updateQuestionCounter('whyInterested', 150);
+        updateQuestionCounter('workConnection', 150);
+        updateQuestionCounter('relevantExperience', 150);
     }, 100);
 }
 
@@ -222,7 +222,7 @@ function updateOrgDescCounter() {
     
     // Update counter color
     const counterSpan = counter.parentElement;
-    if (charCount > 100) {
+    if (charCount > 250) {
         counterSpan.style.color = '#dc2626';
         counterSpan.style.fontWeight = '700';
     } else if (charCount > 0) {
@@ -236,7 +236,7 @@ function updateOrgDescCounter() {
     // Show/hide warning
     const warning = document.getElementById('wordCountWarning');
     if (warning) {
-        warning.style.display = charCount > 100 ? 'block' : 'none';
+        warning.style.display = charCount > 250 ? 'block' : 'none';
     }
 }
 
@@ -342,11 +342,11 @@ function validateStep2() {
     // Validate organization description character count
     const orgDesc = document.getElementById('organizationDescription').value.trim();
     const charCount = orgDesc.replace(/\s/g, '').length;
-    if (charCount > 100) {
+    if (charCount > 250) {
         document.getElementById('organizationDescription').classList.add('is-invalid');
         const feedback = document.querySelector('#organizationDescription + .invalid-feedback');
         if (feedback) {
-            feedback.textContent = `เกินจำนวนตัวอักษรที่กำหนด (${charCount}/100 ตัวอักษร)`;
+            feedback.textContent = `เกินจำนวนตัวอักษรที่กำหนด (${charCount}/250 ตัวอักษร)`;
         }
         isValid = false;
     }

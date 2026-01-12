@@ -2,7 +2,7 @@
 // 🔧 CONFIGURATION
 // ================================
 
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw6gwytlan2lTqSDRybXEb5WFpdMWqp-UOeFUxrzxvpQQu-Nc5w49I2me30TT-X_T9n/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwupr-8gkWmSFhOpRvvmvZXUtuvq_yvkX2LT1b5v5TN0UOsoG4B3Gb57UbXK6LsMmon/exec';
 const ADMIN_PASSWORD_HASH = '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8'; // 'password'
 
 // ================================
