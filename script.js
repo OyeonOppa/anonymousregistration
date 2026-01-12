@@ -117,9 +117,9 @@ function goToStep3() {
     
     // Initialize counters for Step 3
     setTimeout(() => {
-        updateQuestionCounter('whyInterested', 150);
-        updateQuestionCounter('workConnection', 150);
-        updateQuestionCounter('relevantExperience', 150);
+        updateQuestionCounter('whyInterested', 750);
+        updateQuestionCounter('workConnection', 1000);
+        updateQuestionCounter('relevantExperience', 1000);
     }, 100);
 }
 
@@ -356,12 +356,11 @@ function validateStep2() {
 
 function validateStep3() {
     let isValid = true;
-    const maxChars = 500;
     
     const questions = [
-        { id: 'whyInterested', name: 'คำถามที่ 1' },
-        { id: 'workConnection', name: 'คำถามที่ 2' },
-        { id: 'relevantExperience', name: 'คำถามที่ 3' }
+        { id: 'whyInterested', name: 'คำถามที่ 1', maxChars: 750 },
+        { id: 'workConnection', name: 'คำถามที่ 2', maxChars: 1000 },
+        { id: 'relevantExperience', name: 'คำถามที่ 3', maxChars: 1000 }
     ];
     
     questions.forEach(q => {
@@ -380,11 +379,11 @@ function validateStep3() {
         } else {
             // Check character count
             const charCount = text.replace(/\s/g, '').length;
-            if (charCount > maxChars) {
+            if (charCount > q.maxChars) {
                 field.classList.add('is-invalid');
                 const feedback = field.parentElement.querySelector('.invalid-feedback');
                 if (feedback) {
-                    feedback.textContent = `เกินจำนวนตัวอักษรที่กำหนด (${charCount}/${maxChars} ตัวอักษร)`;
+                    feedback.textContent = `เกินจำนวนตัวอักษรที่กำหนด (${charCount}/${q.maxChars} ตัวอักษร)`;
                 }
                 isValid = false;
             }

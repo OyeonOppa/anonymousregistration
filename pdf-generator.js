@@ -35,28 +35,28 @@ async function generateApplicationPDF(formData) {
         
         // คุณสมบัติ
         ctx.font = '28px "Noto Sans Thai", "Sarabun", sans-serif';
-        ctx.fillText(formData.qualification || '', 560, 590);
+        ctx.fillText(formData.qualification || '', 560, 185);
         
         // อายุ
-        ctx.fillText((formData.age || '') , 950, 590);
+        ctx.fillText((formData.age || '') , 1140, 185);
         
         // ตำแหน่ง
         ctx.font = '28px "Noto Sans Thai", "Sarabun", sans-serif';
-        ctx.fillText(formData.position || '', 350, 640);
+        ctx.fillText(formData.position || '', 350, 235);
         
         // หน่วยงาน
-        ctx.fillText(formData.organization || '', 350, 690);
+        ctx.fillText(formData.organization || '', 350, 285);
         
         // ===================================
         // 5. คำถาม 3 ข้อ (ตัดบรรทัดภาษาไทย)
         // ===================================
         ctx.font = '28px "Noto Sans Thai", "Sarabun", sans-serif';
         const lineHeight = 56; // ระยะห่างระหว่างบรรทัด
-        const maxWidth = 1250; // เพิ่มความกว้างให้พอดีกรอบ
-        const leftMargin = 200; // ระยะห่างจากซ้าย
+        const maxWidth = 1500; // เพิ่มความกว้างให้พอดีกรอบ
+        const leftMargin = 70; // ระยะห่างจากซ้าย
         
         // คำถาม 1: y เริ่มต้น 920
-        let yPos = 870;
+        let yPos = 490;
         const maxY1 = 1100; // ความสูงสุดของกรอบคำถาม 1
         const q1Lines = wrapTextThai(ctx, formData.whyInterested || '', maxWidth);
         q1Lines.forEach(line => {
@@ -67,8 +67,8 @@ async function generateApplicationPDF(formData) {
         });
         
         // คำถาม 2: y เริ่มต้น 1270
-        yPos = 1315;
-        const maxY2 = 1450; // ความสูงสุดของกรอบคำถาม 2
+        yPos = 1010;
+        const maxY2 = 1800; // ความสูงสุดของกรอบคำถาม 2
         const q2Lines = wrapTextThai(ctx, formData.workConnection || '', maxWidth);
         q2Lines.forEach(line => {
             if (yPos < maxY2) {
@@ -78,8 +78,8 @@ async function generateApplicationPDF(formData) {
         });
         
         // คำถาม 3: y เริ่มต้น 1620
-        yPos = 1760;
-        const maxY3 = 1900; // ความสูงสุดของกรอบคำถาม 3
+        yPos = 1710;
+        const maxY3 = 2500; // ความสูงสุดของกรอบคำถาม 3
         const q3Lines = wrapTextThai(ctx, formData.relevantExperience || '', maxWidth);
         q3Lines.forEach(line => {
             if (yPos < maxY3) {
@@ -92,7 +92,7 @@ async function generateApplicationPDF(formData) {
         ctx.font = '24px "Noto Sans Thai", "Sarabun", sans-serif';
         ctx.fillStyle = '#808080';
         ctx.textAlign = 'center';
-        ctx.fillText(`รหัสอ้างอิง: ${formData.anonymousId}`, canvas.width / 2, 2100);
+        ctx.fillText(`รหัสอ้างอิง: ${formData.anonymousId}`, canvas.width / 2, 2280);
         
         // 6. แปลง Canvas เป็น Image
         const imageData = canvas.toDataURL('image/png');
