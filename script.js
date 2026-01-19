@@ -2,7 +2,7 @@
 // ⚙️ CONFIGURATION
 // ================================
 
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwupr-8gkWmSFhOpRvvmvZXUtuvq_yvkX2LT1b5v5TN0UOsoG4B3Gb57UbXK6LsMmon/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxoj41oX-TXfVBFckhQJMrr0dwJe9pS6E0FklWF2BNny4HDkWEcPANOstHBD6PLglvc/exec';
 
 // ================================
 // 📝 STATE MANAGEMENT
@@ -72,9 +72,9 @@ function goToStep2() {
         
         console.log('No duplicate, proceeding to step 2');
         
-        // Generate anonymous ID
+        // Generate anonymous ID (เก็บไว้หลังบ้านเท่านั้น)
         anonymousId = generateAnonymousId();
-        document.getElementById('anonymousIdDisplay').textContent = anonymousId;
+        console.log('Generated anonymousId:', anonymousId);
         
         // Go to step 2
         currentStep = 2;
@@ -459,31 +459,49 @@ async function sendDataToGoogleSheets() {
             timestamp: new Date().toISOString()
         };
         
-        await fetch(GOOGLE_SCRIPT_URL, {
+        console.log('Sending data:', dataToSend); // ✅ Debug
+        
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
-            mode: 'no-cors',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'text/plain',
             },
             body: JSON.stringify(dataToSend)
         });
         
-        // Wait a bit for processing
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        console.log('Response status:', response.status); // ✅ Debug
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const result = await response.json();
+        console.log('Response data:', result); // ✅ Debug
         
         Swal.close();
         
-        showSuccessScreen();
+        if (result.success) {
+            showSuccessScreen();
+        } else {
+            throw new Error(result.message || 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ');
+        }
         
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error details:', error); // ✅ Debug
         Swal.close();
         
         Swal.fire({
             icon: 'error',
             title: 'เกิดข้อผิดพลาด',
-            text: 'ไม่สามารถส่งข้อมูลได้ กรุณาลองใหม่อีกครั้ง',
-            confirmButtonColor: '#dc2626'
+            html: `
+                <p>ไม่สามารถส่งข้อมูลได้</p>
+                <div style="text-align: left; background: #fee; padding: 10px; border-radius: 5px; font-size: 0.85rem; margin-top: 10px;">
+                    <strong>รายละเอียด:</strong><br>
+                    ${error.message}
+                </div>
+            `,
+            confirmButtonColor: '#dc2626',
+            footer: '<small>หากปัญหายังคงเกิดขึ้น กรุณาติดต่อเจ้าหน้าที่</small>'
         });
     }
 }
@@ -493,14 +511,33 @@ async function sendDataToGoogleSheets() {
 // ================================
 
 function showSuccessScreen() {
-    document.getElementById('progressBar').style.display = 'none';
-    document.getElementById('step1').style.display = 'none';
-    document.getElementById('step2').style.display = 'none';
-    document.getElementById('step3').style.display = 'none';
-    document.getElementById('successScreen').style.display = 'block';
+    // ซ่อน progress bar และ steps
+    const progressBar = document.getElementById('progressBar');
+    if (progressBar) progressBar.style.display = 'none';
     
-    document.getElementById('finalAnonymousId').textContent = anonymousId;
-    document.getElementById('finalEmail').textContent = formData.email;
+    const step1 = document.getElementById('step1');
+    if (step1) step1.style.display = 'none';
+    
+    const step2 = document.getElementById('step2');
+    if (step2) step2.style.display = 'none';
+    
+    const step3 = document.getElementById('step3');
+    if (step3) step3.style.display = 'none';
+    
+    // แสดง success screen
+    const successScreen = document.getElementById('successScreen');
+    if (successScreen) successScreen.style.display = 'block';
+    
+    // ✅ ตรวจสอบก่อนเข้าถึง element
+    const finalAnonymousIdEl = document.getElementById('finalAnonymousId');
+    if (finalAnonymousIdEl) {
+        finalAnonymousIdEl.textContent = anonymousId;
+    }
+    
+    const finalEmailEl = document.getElementById('finalEmail');
+    if (finalEmailEl) {
+        finalEmailEl.textContent = formData.email;
+    }
 }
 
 // ================================
@@ -567,10 +604,6 @@ function showDuplicateModal(type, existingAnonymousId) {
                             padding: 1.25rem; 
                             text-align: center; 
                             margin: 1.5rem 0;">
-                    <small style="color: #64748b;">รหัสอ้างอิงเดิมของท่าน:</small><br>
-                    <strong style="font-size: 1.75rem; color: #dc2626; letter-spacing: 2px;">
-                        ${existingAnonymousId}
-                    </strong>
                 </div>
             </div>
         `,

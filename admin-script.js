@@ -2,7 +2,7 @@
 // 🔧 CONFIGURATION
 // ================================
 
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwupr-8gkWmSFhOpRvvmvZXUtuvq_yvkX2LT1b5v5TN0UOsoG4B3Gb57UbXK6LsMmon/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxoj41oX-TXfVBFckhQJMrr0dwJe9pS6E0FklWF2BNny4HDkWEcPANOstHBD6PLglvc/exec';
 const ADMIN_PASSWORD_HASH = '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8'; // 'password'
 
 // ================================
@@ -213,8 +213,9 @@ function loadDashboard() {
 }
 
 // ================================
-// 📋 APPLICANTS TABLE
+// 📋 RENDER APPLICANTS TABLE (UPDATED)
 // ================================
+// แทนที่ function renderApplicantsTable() เดิมด้วยอันนี้
 
 function renderApplicantsTable() {
     const tbody = document.getElementById('applicantsTableBody');
@@ -232,7 +233,22 @@ function renderApplicantsTable() {
             <td>${applicant['อายุ']} ปี</td>
             <td>${applicant['ตำแหน่ง']}</td>
             <td>${applicant['หน่วยงาน']}</td>
-            <td>${renderStatusBadge(applicant['สถานะ'] || 'รอพิจารณา')}</td>
+            <td>
+                <div class="status-badges-container">
+                    <div class="status-badge-mini">
+                        <span class="committee-label">ก.1</span>
+                        <span class="${getStatusBadgeClass(applicant['สถานะ (กรรมการคนที่ 1)'])}">${getStatusIcon(applicant['สถานะ (กรรมการคนที่ 1)'])}</span>
+                    </div>
+                    <div class="status-badge-mini">
+                        <span class="committee-label">ก.2</span>
+                        <span class="${getStatusBadgeClass(applicant['สถานะ (กรรมการคนที่ 2)'])}">${getStatusIcon(applicant['สถานะ (กรรมการคนที่ 2)'])}</span>
+                    </div>
+                    <div class="status-badge-mini">
+                        <span class="committee-label">ก.3</span>
+                        <span class="${getStatusBadgeClass(applicant['สถานะ (กรรมการคนที่ 3)'])}">${getStatusIcon(applicant['สถานะ (กรรมการคนที่ 3)'])}</span>
+                    </div>
+                </div>
+            </td>
             <td>
                 <div class="action-buttons">
                     <button class="btn-icon view" onclick="viewApplicant('${applicant['รหัสอ้างอิง']}')" title="ดูรายละเอียด">
@@ -248,6 +264,7 @@ function renderApplicantsTable() {
     
     renderPagination();
 }
+
 
 function renderStatusBadge(status) {
     const statusClasses = {
@@ -330,8 +347,9 @@ function applyFilters() {
 }
 
 // ================================
-// 👁️ VIEW APPLICANT DETAIL
+// 👁️ VIEW APPLICANT DETAIL (UPDATED)
 // ================================
+// แทนที่ function viewApplicant() เดิมด้วยอันนี้
 
 function viewApplicant(anonymousId) {
     const applicant = applicantsData.find(a => a['รหัสอ้างอิง'] === anonymousId);
@@ -373,19 +391,59 @@ function viewApplicant(anonymousId) {
             </div>
             
             <div class="detail-section">
-                <h3><i class="fas fa-tasks"></i> จัดการสถานะ</h3>
-                <div class="status-selector">
-                    <select id="statusSelect">
-                        <option value="รอพิจารณา" ${(applicant['สถานะ'] || 'รอพิจารณา') === 'รอพิจารณา' ? 'selected' : ''}>รอพิจารณา</option>
-                        <option value="อนุมัติ" ${applicant['สถานะ'] === 'อนุมัติ' ? 'selected' : ''}>อนุมัติ</option>
-                        <option value="ไม่อนุมัติ" ${applicant['สถานะ'] === 'ไม่อนุมัติ' ? 'selected' : ''}>ไม่อนุมัติ</option>
-                        <option value="ต้องการเอกสารเพิ่มเติม" ${applicant['สถานะ'] === 'ต้องการเอกสารเพิ่มเติม' ? 'selected' : ''}>ต้องการเอกสารเพิ่มเติม</option>
-                    </select>
-                    <button class="btn-primary" onclick="updateApplicantStatus('${anonymousId}')">
-                        <i class="fas fa-save"></i> บันทึกสถานะ
-                    </button>
+                <h3><i class="fas fa-users"></i> สถานะการพิจารณาโดยกรรมการ</h3>
+                
+                <div class="committee-status">
+                    <strong>👤 กรรมการคนที่ 1:</strong>
+                    <span class="${getStatusClass(applicant['สถานะ (กรรมการคนที่ 1)'])}">${applicant['สถานะ (กรรมการคนที่ 1)'] || 'รอพิจารณา'}</span>
                 </div>
-                <textarea class="note-input" id="noteInput" placeholder="เพิ่มหมายเหตุ...">${applicant['หมายเหตุ'] || ''}</textarea>
+                
+                <div class="committee-status">
+                    <strong>👤 กรรมการคนที่ 2:</strong>
+                    <span class="${getStatusClass(applicant['สถานะ (กรรมการคนที่ 2)'])}">${applicant['สถานะ (กรรมการคนที่ 2)'] || 'รอพิจารณา'}</span>
+                </div>
+                
+                <div class="committee-status">
+                    <strong>👤 กรรมการคนที่ 3:</strong>
+                    <span class="${getStatusClass(applicant['สถานะ (กรรมการคนที่ 3)'])}">${applicant['สถานะ (กรรมการคนที่ 3)'] || 'รอพิจารณา'}</span>
+                </div>
+                
+                <div style="margin-top: 1rem; padding: 0.75rem; background: #f8fafc; border-radius: 8px;">
+                    <strong>📝 หมายเหตุ:</strong>
+                    <p style="margin-top: 0.5rem; white-space: pre-wrap;">${applicant['หมายเหตุ'] || '-'}</p>
+                </div>
+            </div>
+            
+            <div class="detail-section">
+                <h3><i class="fas fa-edit"></i> บันทึกการพิจารณา</h3>
+                
+                <div style="margin-bottom: 1rem;">
+                    <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">คุณคือใคร?</label>
+                    <select id="committeeMemberSelect" class="form-control">
+                        <option value="">-- เลือกชื่อของคุณ --</option>
+                        <option value="กรรมการคนที่ 1">กรรมการคนที่ 1</option>
+                        <option value="กรรมการคนที่ 2">กรรมการคนที่ 2</option>
+                        <option value="กรรมการคนที่ 3">กรรมการคนที่ 3</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">สถานะการพิจารณาของคุณ:</label>
+                    <select id="statusSelect" class="form-control">
+                        <option value="รอพิจารณา">รอพิจารณา</option>
+                        <option value="อนุมัติ">อนุมัติ</option>
+                        <option value="ไม่อนุมัติ">ไม่อนุมัติ</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">หมายเหตุเพิ่มเติม:</label>
+                    <textarea id="noteInput" class="form-control" rows="3" placeholder="เพิ่มหมายเหตุ (ถ้ามี)"></textarea>
+                </div>
+                
+                <button class="btn-primary" onclick="updateApplicantStatus('${anonymousId}')">
+                    <i class="fas fa-save"></i> บันทึกการพิจารณา
+                </button>
             </div>
         </div>
     `;
@@ -394,6 +452,7 @@ function viewApplicant(anonymousId) {
     
     showModal('detailModal');
 }
+
 
 function renderDetailRow(label, value) {
     return `
@@ -405,51 +464,80 @@ function renderDetailRow(label, value) {
 }
 
 // ================================
-// 💾 UPDATE STATUS (แก้ไขแล้ว!)
+// 🔄 UPDATE STATUS - DEBUG VERSION
 // ================================
+// แทนที่ function updateApplicantStatus() เดิมด้วยอันนี้
 
 async function updateApplicantStatus(anonymousId) {
+    const committeeMember = document.getElementById('committeeMemberSelect').value;
     const status = document.getElementById('statusSelect').value;
     const note = document.getElementById('noteInput').value;
     
-    console.log('Updating status:', { anonymousId, status, note });
+    console.log('========================================');
+    console.log('🔄 UPDATE STATUS - DEBUG');
+    console.log('========================================');
+    console.log('anonymousId:', anonymousId);
+    console.log('committeeMember:', committeeMember);
+    console.log('status:', status);
+    console.log('note:', note);
+    console.log('========================================');
+    
+    // Validate
+    if (!committeeMember) {
+        alert('❌ กรุณาเลือกชื่อของคุณก่อน');
+        return;
+    }
     
     showLoading(true);
     
     try {
-        // ✅ ใช้ no-cors mode เหมือนการส่งฟอร์ม
+        const payload = {
+            action: 'updateStatus',
+            anonymousId: anonymousId,
+            committeeMember: committeeMember,
+            status: status,
+            note: note
+        };
+        
+        console.log('Sending payload:', JSON.stringify(payload, null, 2));
+        
         const response = await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
-            mode: 'no-cors', // ✅ สำคัญ!
+            mode: 'no-cors',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                action: 'updateStatus',
-                anonymousId: anonymousId,
-                status: status,
-                note: note
-            })
+            body: JSON.stringify(payload)
         });
         
-        // ⚠️ no-cors ไม่สามารถอ่าน response ได้
-        // แต่ถ้าไม่ error แสดงว่าส่งสำเร็จ
+        console.log('✅ Request sent successfully');
+        console.log('Waiting 3 seconds for Google Sheets to update...');
         
-        console.log('Request sent successfully');
+        await new Promise(resolve => setTimeout(resolve, 3000));
         
-        // รอสักครู่ให้ Google Sheets update
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        console.log('Reloading data...');
         
-        alert('อัปเดตสถานะสำเร็จ');
+        alert('✅ บันทึกการพิจารณาสำเร็จ\n\nกรุณารอสักครู่แล้วเช็ค Google Sheets ว่าอัพเดตหรือยัง');
         closeDetailModal();
-        loadData(); // Reload data
+        loadData();
         
     } catch (error) {
-        console.error('Error updating status:', error);
-        alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ: ' + error.message);
+        console.error('❌ Error updating status:', error);
+        alert('❌ เกิดข้อผิดพลาด: ' + error.message);
     } finally {
         showLoading(false);
     }
+}
+
+// ================================
+// 🎨 HELPER: GET STATUS CLASS
+// ================================
+
+function getStatusClass(status) {
+    if (!status || status === 'รอพิจารณา') return 'status-pending';
+    if (status === 'อนุมัติ') return 'status-approved';
+    if (status === 'ไม่อนุมัติ') return 'status-rejected';
+    return 'status-pending';
 }
 
 // ================================
@@ -606,3 +694,24 @@ function loadAnalytics() {
     });
 }
 
+// ================================
+// 🎨 HELPER: GET STATUS BADGE CLASS
+// ================================
+
+function getStatusBadgeClass(status) {
+    if (!status || status === 'รอพิจารณา') return 'status-badge-mini-pending';
+    if (status === 'อนุมัติ') return 'status-badge-mini-approved';
+    if (status === 'ไม่อนุมัติ') return 'status-badge-mini-rejected';
+    return 'status-badge-mini-pending';
+}
+
+// ================================
+// 🎨 HELPER: GET STATUS ICON
+// ================================
+
+function getStatusIcon(status) {
+    if (!status || status === 'รอพิจารณา') return '⏱';
+    if (status === 'อนุมัติ') return '✓';
+    if (status === 'ไม่อนุมัติ') return '✗';
+    return '⏱';
+}
