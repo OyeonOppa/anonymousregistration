@@ -28,6 +28,27 @@ let formData = {
 // ================================
 
 document.addEventListener('DOMContentLoaded', function() {
+    $('#qualification').select2({
+        width: '100%',
+        placeholder: '-- เลือกคุณสมบัติ --',
+        allowClear: true,
+        language: {
+            noResults: function() {
+                return "ไม่พบข้อมูล";
+            }
+        }
+    });
+    
+    $('#qualification').on('select2:select', function (e) {
+        formData.qualification = e.params.data.id;
+        console.log('✅ Select2 selected:', formData.qualification);
+    });
+    
+    $('#qualification').on('select2:clear', function (e) {
+        formData.qualification = '';
+        console.log('🧹 Select2 cleared');
+    });
+    
     goToStep1();
 });
 
@@ -39,7 +60,6 @@ function goToStep1() {
     currentStep = 1;
     saveCurrentStepData();
     
-    // Hide all steps
     document.getElementById('step1').style.display = 'block';
     document.getElementById('step2').style.display = 'none';
     document.getElementById('step3').style.display = 'none';
@@ -49,34 +69,41 @@ function goToStep1() {
     restoreFormData();
 }
 
-function goToStep2() {
+async function goToStep2() {
+    console.log('🚀 goToStep2 called');
+    
     // Validate step 1
-    if (!validateStep1()) return;
+    if (!validateStep1()) {
+        console.log('❌ Validation failed');
+        return;
+    }
     
     saveCurrentStepData();
     
     // Show loading
     showLoadingAlert('กำลังตรวจสอบข้อมูล...');
     
-    // Check duplicate
-    checkDuplicate(formData.idCard, formData.email).then(isDuplicate => {
-        // ถ้าไม่ซ้ำ ปิด loading alert
-        if (!isDuplicate) {
-            Swal.close();
+    try {
+        console.log('⏳ Calling checkDuplicate...');
+        const isDuplicate = await checkDuplicate(formData.idCard, formData.email);
+        
+        console.log('📊 Final isDuplicate result:', isDuplicate, typeof isDuplicate);
+        
+        // ✅ เช็คแบบเข้มงวด
+        if (isDuplicate === true) {
+            console.log('🛑 BLOCKED: Duplicate found! Staying on Step 1');
+            // Modal แสดงอยู่แล้ว
+            return false; // หยุดเลย
         }
         
-        if (isDuplicate) {
-            console.log('Duplicate detected, staying on step 1');
-            return; // Stay on step 1
-        }
+        // ถึงจุดนี้แปลว่าไม่ซ้ำแน่นอน
+        console.log('✅ Proceeding to Step 2');
         
-        console.log('No duplicate, proceeding to step 2');
+        Swal.close();
         
-        // Generate anonymous ID (เก็บไว้หลังบ้านเท่านั้น)
         anonymousId = generateAnonymousId();
-        console.log('Generated anonymousId:', anonymousId);
+        console.log('🎫 Generated anonymousId:', anonymousId);
         
-        // Go to step 2
         currentStep = 2;
         document.getElementById('step1').style.display = 'none';
         document.getElementById('step2').style.display = 'block';
@@ -85,12 +112,14 @@ function goToStep2() {
         updateProgressIndicators();
         restoreFormData();
         
-        // Initialize word counter for Step 2
         setTimeout(() => {
             updateOrgDescCounter();
         }, 100);
-    }).catch(error => {
-        console.error('Error in goToStep2:', error);
+        
+        return true;
+        
+    } catch (error) {
+        console.error('💥 Error in goToStep2:', error);
         Swal.close();
         Swal.fire({
             icon: 'error',
@@ -98,11 +127,11 @@ function goToStep2() {
             text: 'ไม่สามารถดำเนินการได้ กรุณาลองใหม่อีกครั้ง',
             confirmButtonColor: '#dc2626'
         });
-    });
+        return false;
+    }
 }
 
 function goToStep3() {
-    // Validate step 2
     if (!validateStep2()) return;
     
     saveCurrentStepData();
@@ -115,7 +144,6 @@ function goToStep3() {
     updateProgressIndicators();
     restoreFormData();
     
-    // Initialize counters for Step 3
     setTimeout(() => {
         updateQuestionCounter('whyInterested', 750);
         updateQuestionCounter('workConnection', 1000);
@@ -124,12 +152,10 @@ function goToStep3() {
 }
 
 function submitForm() {
-    // Validate step 3
     if (!validateStep3()) return;
     
     saveCurrentStepData();
     
-    // Confirm submission
     Swal.fire({
         title: '⚠️ ยืนยันการส่งข้อมูล',
         text: 'เมื่อกดยืนยันแล้ว จะไม่สามารถแก้ไขข้อมูลได้',
@@ -137,7 +163,7 @@ function submitForm() {
         showCancelButton: true,
         confirmButtonText: 'ยืนยัน ส่งข้อมูล',
         cancelButtonText: 'ตรวจสอบอีกครั้ง',
-        confirmButtonColor: '#059669',
+        confirmButtonColor: '#047857',
         cancelButtonColor: '#64748b'
     }).then((result) => {
         if (result.isConfirmed) {
@@ -152,18 +178,32 @@ function submitForm() {
 
 function saveCurrentStepData() {
     if (currentStep === 1) {
-        formData.idCard = document.getElementById('idCard')?.value || '';
-        formData.email = document.getElementById('email')?.value || '';
+        formData.idCard = document.getElementById('idCard')?.value.trim() || '';
+        formData.email = document.getElementById('email')?.value.trim() || '';
+        
+        console.log('📝 Step 1 saved:', {
+            idCard: formData.idCard.substring(0, 3) + 'xxxxxxxx' + formData.idCard.substring(11),
+            email: formData.email
+        });
     } else if (currentStep === 2) {
-        formData.qualification = document.getElementById('qualification')?.value || '';
+        formData.qualification = $('#qualification').val() || '';
         formData.age = document.getElementById('age')?.value || '';
-        formData.position = document.getElementById('position')?.value || '';
-        formData.organization = document.getElementById('organization')?.value || '';
-        formData.organizationDescription = document.getElementById('organizationDescription')?.value || '';
+        formData.position = document.getElementById('position')?.value.trim() || '';
+        formData.organization = document.getElementById('organization')?.value.trim() || '';
+        formData.organizationDescription = document.getElementById('organizationDescription')?.value.trim() || '';
+        
+        console.log('📝 Step 2 saved:', {
+            qualification: formData.qualification,
+            age: formData.age,
+            position: formData.position,
+            organization: formData.organization
+        });
     } else if (currentStep === 3) {
-        formData.whyInterested = document.getElementById('whyInterested')?.value || '';
-        formData.workConnection = document.getElementById('workConnection')?.value || '';
-        formData.relevantExperience = document.getElementById('relevantExperience')?.value || '';
+        formData.whyInterested = document.getElementById('whyInterested')?.value.trim() || '';
+        formData.workConnection = document.getElementById('workConnection')?.value.trim() || '';
+        formData.relevantExperience = document.getElementById('relevantExperience')?.value.trim() || '';
+        
+        console.log('📝 Step 3 saved');
     }
 }
 
@@ -176,8 +216,8 @@ function restoreFormData() {
             document.getElementById('email').value = formData.email;
         }
     } else if (currentStep === 2) {
-        if (document.getElementById('qualification')) {
-            document.getElementById('qualification').value = formData.qualification;
+        if ($('#qualification').length) {
+            $('#qualification').val(formData.qualification).trigger('change');
         }
         if (document.getElementById('age')) {
             document.getElementById('age').value = formData.age;
@@ -205,7 +245,7 @@ function restoreFormData() {
 }
 
 // ================================
-// 📊 CHARACTER COUNTER (NEW!)
+// 📊 CHARACTER COUNTER
 // ================================
 
 function updateOrgDescCounter() {
@@ -215,25 +255,22 @@ function updateOrgDescCounter() {
     if (!textarea || !counter) return;
     
     const text = textarea.value.trim();
-    // นับตัวอักษร ไม่รวมเว้นวรรค
     const charCount = text.replace(/\s/g, '').length;
     
     counter.textContent = charCount;
     
-    // Update counter color
     const counterSpan = counter.parentElement;
     if (charCount > 250) {
         counterSpan.style.color = '#dc2626';
         counterSpan.style.fontWeight = '700';
     } else if (charCount > 0) {
-        counterSpan.style.color = '#059669';
+        counterSpan.style.color = '#047857';
         counterSpan.style.fontWeight = '600';
     } else {
         counterSpan.style.color = '#64748b';
         counterSpan.style.fontWeight = '500';
     }
     
-    // Show/hide warning
     const warning = document.getElementById('wordCountWarning');
     if (warning) {
         warning.style.display = charCount > 250 ? 'block' : 'none';
@@ -247,7 +284,6 @@ function updateQuestionCounter(fieldId, maxChars) {
     const text = textarea.value.trim();
     const charCount = text.replace(/\s/g, '').length;
     
-    // Find counter element based on fieldId
     let counterId;
     if (fieldId === 'whyInterested') counterId = 'counter1';
     else if (fieldId === 'workConnection') counterId = 'counter2';
@@ -258,12 +294,11 @@ function updateQuestionCounter(fieldId, maxChars) {
     
     counter.textContent = `(${charCount}/${maxChars} ตัวอักษร)`;
     
-    // Update color
     if (charCount > maxChars) {
         counter.style.color = '#dc2626';
         counter.style.fontWeight = '700';
     } else if (charCount > 0) {
-        counter.style.color = '#059669';
+        counter.style.color = '#047857';
         counter.style.fontWeight = '600';
     } else {
         counter.style.color = '#64748b';
@@ -278,41 +313,78 @@ function updateQuestionCounter(fieldId, maxChars) {
 function validateStep1() {
     let isValid = true;
     
-    const idCard = document.getElementById('idCard').value;
-    const email = document.getElementById('email').value;
+    const idCard = document.getElementById('idCard').value.trim();
+    const email = document.getElementById('email').value.trim();
     
-    // Reset errors
+    console.log('🔍 Validating Step 1:', { 
+        idCard: idCard.substring(0, 3) + 'xxxxxxxx' + idCard.substring(11), 
+        email 
+    });
+    
     document.getElementById('idCard').classList.remove('is-invalid');
     document.getElementById('email').classList.remove('is-invalid');
     
-    // Validate ID Card
     if (!idCard || idCard.length !== 13 || !/^\d{13}$/.test(idCard)) {
         document.getElementById('idCard').classList.add('is-invalid');
-        document.querySelector('#idCard + .invalid-feedback').textContent = 'กรุณากรอกเลขบัตรประชาชน 13 หลักให้ถูกต้อง';
+        const feedback = document.querySelector('#idCard').parentElement.querySelector('.invalid-feedback');
+        if (feedback) {
+            feedback.textContent = 'กรุณากรอกเลขบัตรประชาชน 13 หลักให้ถูกต้อง';
+        }
         isValid = false;
+        console.log('❌ ID Card validation failed');
     }
     
-    // Validate Email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !emailRegex.test(email)) {
         document.getElementById('email').classList.add('is-invalid');
-        document.querySelector('#email + .invalid-feedback').textContent = 'กรุณากรอกอีเมลให้ถูกต้อง';
+        const feedback = document.querySelector('#email').parentElement.querySelector('.invalid-feedback');
+        if (feedback) {
+            feedback.textContent = 'กรุณากรอกอีเมลให้ถูกต้อง';
+        }
         isValid = false;
+        console.log('❌ Email validation failed');
     }
     
+    console.log(isValid ? '✅ Step 1 validation PASSED' : '❌ Step 1 validation FAILED');
     return isValid;
 }
 
 function validateStep2() {
     let isValid = true;
     
-    const fields = [
-        'qualification',
-        'age',
-        'position',
-        'organization',
-        'organizationDescription'
-    ];
+    console.log('🔍 Validating Step 2...');
+    
+    const qualification = $('#qualification').val();
+    const qualificationSelect = document.getElementById('qualification');
+    
+    if (!qualification || qualification === '') {
+        const select2Container = $(qualificationSelect).next('.select2-container');
+        if (select2Container.length) {
+            select2Container.addClass('is-invalid');
+            select2Container.css('border', '2px solid #dc2626');
+        }
+        
+        const feedback = qualificationSelect.parentElement.querySelector('.invalid-feedback');
+        if (feedback) {
+            feedback.style.display = 'block';
+            feedback.textContent = 'กรุณาเลือกคุณสมบัติ';
+        }
+        isValid = false;
+        console.log('❌ Qualification validation failed');
+    } else {
+        const select2Container = $(qualificationSelect).next('.select2-container');
+        if (select2Container.length) {
+            select2Container.removeClass('is-invalid');
+            select2Container.css('border', '');
+        }
+        const feedback = qualificationSelect.parentElement.querySelector('.invalid-feedback');
+        if (feedback) {
+            feedback.style.display = 'none';
+        }
+        console.log('✅ Qualification:', qualification);
+    }
+    
+    const fields = ['age', 'position', 'organization', 'organizationDescription'];
     
     fields.forEach(fieldId => {
         const field = document.getElementById(fieldId);
@@ -325,37 +397,41 @@ function validateStep2() {
                 feedback.textContent = 'กรุณากรอกข้อมูลนี้';
             }
             isValid = false;
+            console.log(`❌ ${fieldId} validation failed`);
         }
     });
     
-    // Validate age range
     const age = document.getElementById('age').value;
     if (age && (parseInt(age) < 18 || parseInt(age) > 99)) {
         document.getElementById('age').classList.add('is-invalid');
-        const feedback = document.querySelector('#age + .invalid-feedback');
+        const feedback = document.querySelector('#age').parentElement.querySelector('.invalid-feedback');
         if (feedback) {
             feedback.textContent = 'กรุณากรอกอายุระหว่าง 18-99 ปี';
         }
         isValid = false;
+        console.log('❌ Age range validation failed');
     }
     
-    // Validate organization description character count
     const orgDesc = document.getElementById('organizationDescription').value.trim();
     const charCount = orgDesc.replace(/\s/g, '').length;
     if (charCount > 250) {
         document.getElementById('organizationDescription').classList.add('is-invalid');
-        const feedback = document.querySelector('#organizationDescription + .invalid-feedback');
+        const feedback = document.querySelector('#organizationDescription').parentElement.querySelector('.invalid-feedback');
         if (feedback) {
             feedback.textContent = `เกินจำนวนตัวอักษรที่กำหนด (${charCount}/250 ตัวอักษร)`;
         }
         isValid = false;
+        console.log('❌ Org description length validation failed');
     }
     
+    console.log(isValid ? '✅ Step 2 validation PASSED' : '❌ Step 2 validation FAILED');
     return isValid;
 }
 
 function validateStep3() {
     let isValid = true;
+    
+    console.log('🔍 Validating Step 3...');
     
     const questions = [
         { id: 'whyInterested', name: 'คำถามที่ 1', maxChars: 750 },
@@ -376,8 +452,8 @@ function validateStep3() {
                 feedback.textContent = 'กรุณากรอกข้อมูลนี้';
             }
             isValid = false;
+            console.log(`❌ ${q.name} validation failed (empty)`);
         } else {
-            // Check character count
             const charCount = text.replace(/\s/g, '').length;
             if (charCount > q.maxChars) {
                 field.classList.add('is-invalid');
@@ -386,61 +462,89 @@ function validateStep3() {
                     feedback.textContent = `เกินจำนวนตัวอักษรที่กำหนด (${charCount}/${q.maxChars} ตัวอักษร)`;
                 }
                 isValid = false;
+                console.log(`❌ ${q.name} validation failed (too long)`);
+            } else {
+                console.log(`✅ ${q.name}: ${charCount}/${q.maxChars} chars`);
             }
         }
     });
     
+    console.log(isValid ? '✅ Step 3 validation PASSED' : '❌ Step 3 validation FAILED');
     return isValid;
 }
 
 // ================================
-// 🔍 CHECK DUPLICATE
+// 🔍 CHECK DUPLICATE - แก้ใหม่ให้แน่ชัด
 // ================================
 
+// ✅ แก้ไข: เช็คที่ result.data.isDuplicate
 async function checkDuplicate(idCard, email) {
+    console.log('🔍 START checkDuplicate');
+    console.log('   idCard:', idCard.substring(0, 3) + 'xxx' + idCard.substring(11));
+    console.log('   email:', email);
+    
     try {
-        const url = `${GOOGLE_SCRIPT_URL}?action=checkDuplicate&idCard=${idCard}&email=${encodeURIComponent(email)}`;
+        const url = `${GOOGLE_SCRIPT_URL}?action=checkDuplicate&idCard=${encodeURIComponent(idCard)}&email=${encodeURIComponent(email)}`;
+        
+        console.log('📡 Fetching:', url);
         
         const response = await fetch(url, {
             method: 'GET',
             redirect: 'follow'
         });
         
-        const result = await response.json();
+        console.log('📡 Response status:', response.status);
         
-        console.log('Check duplicate result:', result);
-        
-        if (result.success && result.isDuplicate) {
-            // ปิด loading alert ก่อน
-            Swal.close();
-            
-            // รอสักครู่แล้วแสดง duplicate modal
-            setTimeout(() => {
-                showDuplicateModal(result.type, result.existingAnonymousId);
-            }, 300);
-            
-            return true;
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
         }
         
-        return false;
+        const result = await response.json();
+        
+        console.log('📥 Raw result:', JSON.stringify(result, null, 2));
+        
+        // ✅ แก้ไข: เช็คที่ result.data.isDuplicate
+        const isDup = !!(result && result.success && result.data && result.data.isDuplicate === true);
+        
+        console.log('🔎 Parsed isDuplicate:', isDup);
+        
+        if (isDup) {
+            console.log('⚠️ DUPLICATE DETECTED!');
+            console.log('   Type:', result.data.type);
+            console.log('   ID:', result.data.existingAnonymousId);
+            
+            // ปิด loading
+            Swal.close();
+            
+            // แสดง modal
+            showDuplicateModal(result.data.type, result.data.existingAnonymousId);
+            
+            console.log('🛑 Returning TRUE (blocked)');
+            return true; // ซ้ำ = บล็อก
+        }
+        
+        console.log('✅ No duplicate, returning FALSE');
+        return false; // ไม่ซ้ำ = ผ่าน
         
     } catch (error) {
-        console.error('Error checking duplicate:', error);
+        console.error('💥 checkDuplicate error:', error);
         
-        // ปิด loading alert
         Swal.close();
         
         const proceed = await Swal.fire({
             title: 'ไม่สามารถตรวจสอบข้อมูลซ้ำได้',
-            text: 'สาเหตุอาจเป็นเครือข่ายอินเทอร์เน็ตไม่เสถียร\n\nคุณต้องการดำเนินการต่อหรือไม่?',
+            text: 'คุณต้องการดำเนินการต่อหรือไม่?',
             icon: 'question',
             showCancelButton: true,
-            confirmButtonText: 'ใช่, ดำเนินการต่อ',
+            confirmButtonText: 'ดำเนินการต่อ',
             cancelButtonText: 'ยกเลิก',
-            confirmButtonColor: '#1e3a8a',
+            confirmButtonColor: '#047857',
             cancelButtonColor: '#64748b'
         });
         
+        console.log('❓ User chose:', proceed.isConfirmed ? 'proceed' : 'cancel');
+        
+        // ถ้ายกเลิก = return true (บล็อก)
         return !proceed.isConfirmed;
     }
 }
@@ -459,7 +563,7 @@ async function sendDataToGoogleSheets() {
             timestamp: new Date().toISOString()
         };
         
-        console.log('Sending data:', dataToSend); // ✅ Debug
+        console.log('📤 Sending data...');
         
         const response = await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
@@ -469,25 +573,25 @@ async function sendDataToGoogleSheets() {
             body: JSON.stringify(dataToSend)
         });
         
-        console.log('Response status:', response.status); // ✅ Debug
+        console.log('📥 Response status:', response.status);
         
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
         
         const result = await response.json();
-        console.log('Response data:', result); // ✅ Debug
+        console.log('📥 Response data:', result);
         
         Swal.close();
         
         if (result.success) {
             showSuccessScreen();
         } else {
-            throw new Error(result.message || 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ');
+            throw new Error(result.message || 'เกิดข้อผิดพลาด');
         }
         
     } catch (error) {
-        console.error('Error details:', error); // ✅ Debug
+        console.error('💥 Error sending data:', error);
         Swal.close();
         
         Swal.fire({
@@ -500,8 +604,7 @@ async function sendDataToGoogleSheets() {
                     ${error.message}
                 </div>
             `,
-            confirmButtonColor: '#dc2626',
-            footer: '<small>หากปัญหายังคงเกิดขึ้น กรุณาติดต่อเจ้าหน้าที่</small>'
+            confirmButtonColor: '#dc2626'
         });
     }
 }
@@ -511,33 +614,20 @@ async function sendDataToGoogleSheets() {
 // ================================
 
 function showSuccessScreen() {
-    // ซ่อน progress bar และ steps
     const progressBar = document.getElementById('progressBar');
     if (progressBar) progressBar.style.display = 'none';
     
-    const step1 = document.getElementById('step1');
-    if (step1) step1.style.display = 'none';
-    
-    const step2 = document.getElementById('step2');
-    if (step2) step2.style.display = 'none';
-    
-    const step3 = document.getElementById('step3');
-    if (step3) step3.style.display = 'none';
-    
-    // แสดง success screen
-    const successScreen = document.getElementById('successScreen');
-    if (successScreen) successScreen.style.display = 'block';
-    
-    // ✅ ตรวจสอบก่อนเข้าถึง element
-    const finalAnonymousIdEl = document.getElementById('finalAnonymousId');
-    if (finalAnonymousIdEl) {
-        finalAnonymousIdEl.textContent = anonymousId;
-    }
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('step2').style.display = 'none';
+    document.getElementById('step3').style.display = 'none';
+    document.getElementById('successScreen').style.display = 'block';
     
     const finalEmailEl = document.getElementById('finalEmail');
     if (finalEmailEl) {
         finalEmailEl.textContent = formData.email;
     }
+    
+    console.log('✅ Success screen displayed');
 }
 
 // ================================
@@ -561,7 +651,6 @@ function updateProgressIndicators() {
         }
     });
     
-    // Update progress bar
     const progressFill = document.getElementById('progressFill');
     const percentage = (currentStep / 3) * 100;
     progressFill.style.width = percentage + '%';
@@ -580,7 +669,7 @@ function generateAnonymousId() {
 function showLoadingAlert(message) {
     Swal.fire({
         title: message,
-        html: '<div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>',
+        html: '<div class="spinner-border" style="width: 3rem; height: 3rem; border: 0.25em solid #047857; border-right-color: transparent; border-radius: 50%; animation: spinner-border 0.75s linear infinite;"></div>',
         showConfirmButton: false,
         allowOutsideClick: false,
         allowEscapeKey: false
@@ -604,11 +693,15 @@ function showDuplicateModal(type, existingAnonymousId) {
                             padding: 1.25rem; 
                             text-align: center; 
                             margin: 1.5rem 0;">
+                    <strong style="font-size: 1.25rem; color: #dc2626;">หมายเลขอ้างอิง:</strong><br>
+                    <strong style="font-size: 1.5rem; color: #dc2626; letter-spacing: 2px;">${existingAnonymousId || '-'}</strong>
                 </div>
+                <p style="font-size: 0.9rem; color: #64748b;">หากต้องการแก้ไขข้อมูล กรุณาติดต่อเจ้าหน้าที่</p>
             </div>
         `,
         confirmButtonText: 'เข้าใจแล้ว',
-        confirmButtonColor: '#1e3a8a'
+        confirmButtonColor: '#047857',
+        allowOutsideClick: false
     });
 }
 
