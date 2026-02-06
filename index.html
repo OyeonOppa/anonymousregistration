@@ -18,7 +18,7 @@
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     
-    <!-- jQuery (ต้องโหลดก่อน Select2 และ SweetAlert2) -->
+    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
     <!-- Select2 JS -->
@@ -28,8 +28,14 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
+    
     <div class="app-container">
         <div class="form-wrapper">
+             <div class="logo-container">
+                <img src="/logo.png" width="60px"
+                     alt="สถาบันพระปกเกล้า" 
+                     class="kpi-logo">
+            </div>
             <!-- Header -->
             <div class="text-center mb-4">
                 <h1 class="form-title">แบบฟอร์มแจ้งความประสงค์เข้าคัดเลือกเป็นนักศึกษา</h1>
@@ -153,7 +159,7 @@
 </div>
 
                     <div class="form-group mb-4">
-                        <label class="form-label required">อายุ *ต้องมีอายุตามเกณฑ์ที่สถาบันฯ กำหนดไว้ในแต่ละคุณสมบัติ</label>
+                        <label class="form-label required">อายุ <i>(ต้องมีอายุตามเกณฑ์ที่สถาบันฯ กำหนดไว้ในแต่ละคุณสมบัติ)</i></label>
                         <input type="number" 
                                id="age" 
                                class="form-control form-control-lg" 
