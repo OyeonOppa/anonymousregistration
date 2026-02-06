@@ -236,15 +236,15 @@ function renderApplicantsTable() {
             <td>
                 <div class="status-badges-container">
                     <div class="status-badge-mini">
-                        <span class="committee-label">ก.1</span>
+                        <span class="committee-label">เจ้าหน้าที่</span>
                         <span class="${getStatusBadgeClass(applicant['สถานะ (เจ้าหน้าที่)'])}">${getStatusIcon(applicant['สถานะ (เจ้าหน้าที่)'])}</span>
                     </div>
                     <div class="status-badge-mini">
-                        <span class="committee-label">ก.2</span>
+                        <span class="committee-label">ดร.ชลัท</span>
                         <span class="${getStatusBadgeClass(applicant['สถานะ (ดร.ชลัท)'])}">${getStatusIcon(applicant['สถานะ (ดร.ชลัท)'])}</span>
                     </div>
                     <div class="status-badge-mini">
-                        <span class="committee-label">ก.3</span>
+                        <span class="committee-label">ดร.อภิญญา</span>
                         <span class="${getStatusBadgeClass(applicant['สถานะ (ดร.อภิญญา)'])}">${getStatusIcon(applicant['สถานะ (ดร.อภิญญา)'])}</span>
                     </div>
                 </div>
