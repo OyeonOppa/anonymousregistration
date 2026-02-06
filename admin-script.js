@@ -233,6 +233,7 @@ function renderApplicantsTable() {
             <td>${applicant['อายุ']} ปี</td>
             <td>${applicant['ตำแหน่ง']}</td>
             <td>${applicant['หน่วยงาน']}</td>
+            <td>${applicant['เบอร์โทรศัพท์'] || '-'}</td>
             <td>
                 <div class="status-badges-container">
                     <div class="status-badge-mini">
@@ -362,6 +363,7 @@ function viewApplicant(anonymousId) {
                 <h3><i class="fas fa-user"></i> ข้อมูลผู้สมัคร</h3>
                 ${renderDetailRow('รหัสอ้างอิง', applicant['รหัสอ้างอิง'])}
                 ${renderDetailRow('อีเมล', applicant['อีเมล'])}
+                ${renderDetailRow('เบอร์โทรศัพท์', applicant['เบอร์โทรศัพท์'] || '-')}
                 ${renderDetailRow('คุณสมบัติ', applicant['คุณสมบัติ'])}
                 ${renderDetailRow('อายุ', applicant['อายุ'] + ' ปี')}
                 ${renderDetailRow('ตำแหน่ง', applicant['ตำแหน่ง'])}

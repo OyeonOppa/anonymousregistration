@@ -13,6 +13,7 @@ let anonymousId = '';
 let formData = {
     idCard: '',
     email: '',
+    phone: '', // ✨ เพิ่ม phone
     qualification: '',
     age: '',
     position: '',
@@ -180,10 +181,12 @@ function saveCurrentStepData() {
     if (currentStep === 1) {
         formData.idCard = document.getElementById('idCard')?.value.trim() || '';
         formData.email = document.getElementById('email')?.value.trim() || '';
+        formData.phone = document.getElementById('phone')?.value.trim() || ''; // ✨ เพิ่ม phone
         
         console.log('📝 Step 1 saved:', {
             idCard: formData.idCard.substring(0, 3) + 'xxxxxxxx' + formData.idCard.substring(11),
-            email: formData.email
+            email: formData.email,
+            phone: formData.phone // ✨ เพิ่ม phone
         });
     } else if (currentStep === 2) {
         formData.qualification = $('#qualification').val() || '';
@@ -214,6 +217,9 @@ function restoreFormData() {
         }
         if (document.getElementById('email')) {
             document.getElementById('email').value = formData.email;
+        }
+        if (document.getElementById('phone')) {
+            document.getElementById('phone').value = formData.phone; // ✨ เพิ่ม phone
         }
     } else if (currentStep === 2) {
         if ($('#qualification').length) {
@@ -315,14 +321,17 @@ function validateStep1() {
     
     const idCard = document.getElementById('idCard').value.trim();
     const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim(); // ✨ เพิ่ม phone
     
     console.log('🔍 Validating Step 1:', { 
         idCard: idCard.substring(0, 3) + 'xxxxxxxx' + idCard.substring(11), 
-        email 
+        email,
+        phone
     });
     
     document.getElementById('idCard').classList.remove('is-invalid');
     document.getElementById('email').classList.remove('is-invalid');
+    document.getElementById('phone').classList.remove('is-invalid');
     
     if (!idCard || idCard.length !== 13 || !/^\d{13}$/.test(idCard)) {
         document.getElementById('idCard').classList.add('is-invalid');
@@ -343,6 +352,18 @@ function validateStep1() {
         }
         isValid = false;
         console.log('❌ Email validation failed');
+    }
+    
+ // ✨ Validate Phone (เพิ่มใหม่)
+    const phoneRegex = /^0[0-9]{9}$/; // เบอร์โทรไทย 10 หลัก เริ่มต้นด้วย 0
+    if (!phone || !phoneRegex.test(phone)) {
+        document.getElementById('phone').classList.add('is-invalid');
+        const feedback = document.querySelector('#phone').parentElement.querySelector('.invalid-feedback');
+        if (feedback) {
+            feedback.textContent = 'กรุณากรอกเบอร์โทรศัพท์ 10 หลักให้ถูกต้อง (เช่น 0812345678)';
+        }
+        isValid = false;
+        console.log('❌ Phone validation failed');
     }
     
     console.log(isValid ? '✅ Step 1 validation PASSED' : '❌ Step 1 validation FAILED');
@@ -715,3 +736,12 @@ window.goToStep3 = goToStep3;
 window.submitForm = submitForm;
 window.updateOrgDescCounter = updateOrgDescCounter;
 window.updateQuestionCounter = updateQuestionCounter;
+
+// เพิ่มใน script.js
+function formatPhoneNumber(phone) {
+    if (!phone || phone.length !== 10) return phone;
+    return phone.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+}
+
+// ใช้ตอนแสดงผล
+console.log(formatPhoneNumber('0812345678')); // 081-234-5678
