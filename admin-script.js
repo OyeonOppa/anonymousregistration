@@ -587,10 +587,10 @@ function exportToCSV() {
 }
 
 // ================================
-// 📈 CHARTS
+// 📈 CHARTS - รองรับ custom options
 // ================================
 
-function createChart(canvasId, type, data) {
+function createChart(canvasId, type, data, customOptions = {}) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
     
@@ -599,19 +599,78 @@ function createChart(canvasId, type, data) {
     }
     
     const ctx = canvas.getContext('2d');
-    charts[canvasId] = new Chart(ctx, {
-        type: type,
-        data: data,
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            plugins: {
-                legend: {
-                    position: 'bottom'
+    
+    // Default options
+    const defaultOptions = {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    padding: 15,
+                    font: {
+                        size: 12,
+                        family: "'Noto Sans Thai', sans-serif"
+                    }
+                }
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                padding: 12,
+                titleFont: {
+                    size: 14,
+                    family: "'Noto Sans Thai', sans-serif"
+                },
+                bodyFont: {
+                    size: 13,
+                    family: "'Noto Sans Thai', sans-serif"
+                },
+                callbacks: {
+                    label: function(context) {
+                        let label = context.label || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        label += context.parsed || context.parsed.y || 0;
+                        
+                        // คำนวณเปอร์เซ็นต์
+                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                        const percentage = ((context.parsed / total) * 100).toFixed(1);
+                        label += ` (${percentage}%)`;
+                        
+                        return label;
+                    }
                 }
             }
         }
+    };
+    
+    // Merge custom options with default options
+    const options = mergeOptions(defaultOptions, customOptions);
+    
+    charts[canvasId] = new Chart(ctx, {
+        type: type,
+        data: data,
+        options: options
     });
+}
+
+// Helper function to merge options
+function mergeOptions(obj1, obj2) {
+    const result = { ...obj1 };
+    
+    for (let key in obj2) {
+        if (obj2.hasOwnProperty(key)) {
+            if (typeof obj2[key] === 'object' && !Array.isArray(obj2[key]) && obj2[key] !== null) {
+                result[key] = mergeOptions(result[key] || {}, obj2[key]);
+            } else {
+                result[key] = obj2[key];
+            }
+        }
+    }
+    
+    return result;
 }
 
 // ================================
@@ -668,31 +727,158 @@ function logout() {
 // 📊 ANALYTICS PAGE
 // ================================
 
+// ================================
+// 📊 ANALYTICS PAGE - ปรับปรุงใหม่
+// ================================
+
+// ================================
+// 📊 ANALYTICS PAGE - แก้ไขแล้ว
+// ================================
+
 function loadAnalytics() {
+    // ========================================
+    // 📊 กราฟสถานะโดยรวม (Pie Chart)
+    // ========================================
     const statusData = {
-        'รอพิจารณา': applicantsData.filter(a => (a['สถานะ'] || 'รอพิจารณา') === 'รอพิจารณา').length,
-        'อนุมัติ': applicantsData.filter(a => a['สถานะ'] === 'อนุมัติ').length,
-        'ไม่อนุมัติ': applicantsData.filter(a => a['สถานะ'] === 'ไม่อนุมัติ').length,
-        'ต้องการเอกสารเพิ่มเติม': applicantsData.filter(a => a['สถานะ'] === 'ต้องการเอกสารเพิ่มเติม').length
+        'รอพิจารณา': 0,
+        'อนุมัติ': 0,
+        'ไม่อนุมัติ': 0
     };
     
-    createChart('overallChart', 'line', {
-        labels: Object.keys(statusData),
-        datasets: [{
-            label: 'จำนวนผู้สมัคร',
-            data: Object.values(statusData),
-            borderColor: '#667eea',
-            backgroundColor: 'rgba(102, 126, 234, 0.1)',
-            fill: true
-        }]
+    // นับจำนวนแต่ละสถานะจากทั้ง 3 กรรมการ
+    applicantsData.forEach(a => {
+        const status1 = a['สถานะ (เจ้าหน้าที่)'] || 'รอพิจารณา';
+        const status2 = a['สถานะ (ดร.ชลัท)'] || 'รอพิจารณา';
+        const status3 = a['สถานะ (ดร.อภิญญา)'] || 'รอพิจารณา';
+        
+        // นับแต่ละสถานะ
+        if (statusData[status1] !== undefined) statusData[status1]++;
+        if (statusData[status2] !== undefined) statusData[status2]++;
+        if (statusData[status3] !== undefined) statusData[status3]++;
     });
     
-    createChart('approvalChart', 'pie', {
+    createChart('overallChart', 'pie', {
         labels: Object.keys(statusData),
         datasets: [{
             data: Object.values(statusData),
-            backgroundColor: ['#f59e0b', '#10b981', '#ef4444', '#3b82f6']
+            backgroundColor: [
+                '#f59e0b',  // ส้ม - รอพิจารณา
+                '#10b981',  // เขียว - อนุมัติ
+                '#ef4444'   // แดง - ไม่อนุมัติ
+            ],
+            borderWidth: 2,
+            borderColor: '#ffffff'
         }]
+    }, {
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    padding: 20,
+                    font: {
+                        size: 14
+                    }
+                }
+            },
+            title: {
+                display: true,
+                text: 'สถานะการพิจารณาโดยรวม (รวมทั้ง 3 กรรมการ)',
+                font: {
+                    size: 16,
+                    weight: 'bold'
+                },
+                padding: 20
+            }
+        }
+    });
+    
+    // ========================================
+    // 📊 สัดส่วนการอนุมัติ (Doughnut Chart)
+    // ========================================
+    
+    // นับจำนวนผู้สมัครที่ได้รับการอนุมัติจากทุกกรรมการ
+    let fullyApproved = 0;      // อนุมัติจากทั้ง 3 คน
+    let partiallyApproved = 0;  // อนุมัติบางคน
+    let pending = 0;            // รอพิจารณาทั้งหมด
+    let rejected = 0;           // ไม่อนุมัติทั้งหมด
+    
+    applicantsData.forEach(a => {
+        const status1 = a['สถานะ (เจ้าหน้าที่)'] || 'รอพิจารณา';
+        const status2 = a['สถานะ (ดร.ชลัท)'] || 'รอพิจารณา';
+        const status3 = a['สถานะ (ดร.อภิญญา)'] || 'รอพิจารณา';
+        
+        const approvedCount = [status1, status2, status3].filter(s => s === 'อนุมัติ').length;
+        const rejectedCount = [status1, status2, status3].filter(s => s === 'ไม่อนุมัติ').length;
+        const pendingCount = [status1, status2, status3].filter(s => s === 'รอพิจารณา').length;
+        
+        if (approvedCount === 3) {
+            fullyApproved++;
+        } else if (approvedCount > 0) {
+            partiallyApproved++;
+        } else if (rejectedCount === 3) {
+            rejected++;
+        } else {
+            pending++;
+        }
+    });
+    
+    createChart('approvalChart', 'doughnut', {
+        labels: [
+            'อนุมัติทั้ง 3 กรรมการ',
+            'อนุมัติบางส่วน',
+            'รอพิจารณา',
+            'ไม่อนุมัติทั้งหมด'
+        ],
+        datasets: [{
+            data: [fullyApproved, partiallyApproved, pending, rejected],
+            backgroundColor: [
+                '#10b981',  // เขียวเข้ม - อนุมัติทั้งหมด
+                '#34d399',  // เขียวอ่อน - อนุมัติบางส่วน
+                '#f59e0b',  // ส้ม - รอพิจารณา
+                '#ef4444'   // แดง - ไม่อนุมัติ
+            ],
+            borderWidth: 2,
+            borderColor: '#ffffff'
+        }]
+    }, {
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    padding: 20,
+                    font: {
+                        size: 14
+                    }
+                }
+            },
+            title: {
+                display: true,
+                text: 'สัดส่วนการอนุมัติ',
+                font: {
+                    size: 16,
+                    weight: 'bold'
+                },
+                padding: 20
+            }
+        }
+    });
+    
+    // ========================================
+    // 📊 อัพเดทตัวเลขสถิติ
+    // ========================================
+    
+    const elements = {
+        'fullyApprovedCount': fullyApproved,
+        'partiallyApprovedCount': partiallyApproved,
+        'pendingCount': pending,
+        'rejectedCount': rejected
+    };
+    
+    Object.entries(elements).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = value;
+        }
     });
 }
 

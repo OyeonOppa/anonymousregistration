@@ -231,24 +231,70 @@
         </div>
 
         <!-- Analytics Page -->
-        <div class="page" id="analyticsPage">
-            <div class="analytics-grid">
-                <div class="analytics-card full-width">
-                    <h3>สถิติโดยรวม</h3>
-                    <canvas id="overallChart"></canvas>
-                </div>
+<div class="page" id="analyticsPage">
+    <div class="analytics-grid">
+        <!-- สถิติโดยรวม (Pie Chart) -->
+        <div class="analytics-card">
+            <h3>
+                <i class="fas fa-chart-pie"></i>
+                สถิติโดยรวม
+            </h3>
+            <canvas id="overallChart"></canvas>
+        </div>
 
-                <div class="analytics-card">
-                    <h3>Top 5 หน่วยงาน</h3>
-                    <div id="topOrganizations"></div>
-                </div>
-
-                <div class="analytics-card">
-                    <h3>สัดส่วนการอนุมัติ</h3>
-                    <canvas id="approvalChart"></canvas>
-                </div>
+        <!-- สัดส่วนการอนุมัติ (Doughnut Chart) -->
+        <div class="analytics-card">
+            <h3>
+                <i class="fas fa-chart-pie"></i>
+                สัดส่วนการอนุมัติ
+            </h3>
+            <canvas id="approvalChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- สถิติเพิ่มเติม -->
+    <div class="stats-summary">
+        <div class="summary-card">
+            <div class="summary-icon green">
+                <i class="fas fa-check-double"></i>
+            </div>
+            <div class="summary-content">
+                <div class="summary-label">อนุมัติทั้ง 3 กรรมการ</div>
+                <div class="summary-value" id="fullyApprovedCount">0</div>
             </div>
         </div>
+        
+        <div class="summary-card">
+            <div class="summary-icon blue">
+                <i class="fas fa-user-check"></i>
+            </div>
+            <div class="summary-content">
+                <div class="summary-label">อนุมัติบางส่วน</div>
+                <div class="summary-value" id="partiallyApprovedCount">0</div>
+            </div>
+        </div>
+        
+        <div class="summary-card">
+            <div class="summary-icon yellow">
+                <i class="fas fa-hourglass-half"></i>
+            </div>
+            <div class="summary-content">
+                <div class="summary-label">รอพิจารณา</div>
+                <div class="summary-value" id="pendingCount">0</div>
+            </div>
+        </div>
+        
+        <div class="summary-card">
+            <div class="summary-icon red">
+                <i class="fas fa-times-circle"></i>
+            </div>
+            <div class="summary-content">
+                <div class="summary-label">ไม่อนุมัติทั้งหมด</div>
+                <div class="summary-value" id="rejectedCount">0</div>
+            </div>
+        </div>
+    </div>
+</div>
 
         <!-- Export Page -->
         <div class="page" id="exportPage">
