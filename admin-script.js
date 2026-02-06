@@ -237,15 +237,15 @@ function renderApplicantsTable() {
                 <div class="status-badges-container">
                     <div class="status-badge-mini">
                         <span class="committee-label">ก.1</span>
-                        <span class="${getStatusBadgeClass(applicant['สถานะ (กรรมการคนที่ 1)'])}">${getStatusIcon(applicant['สถานะ (กรรมการคนที่ 1)'])}</span>
+                        <span class="${getStatusBadgeClass(applicant['สถานะ (เจ้าหน้าที่)'])}">${getStatusIcon(applicant['สถานะ (เจ้าหน้าที่)'])}</span>
                     </div>
                     <div class="status-badge-mini">
                         <span class="committee-label">ก.2</span>
-                        <span class="${getStatusBadgeClass(applicant['สถานะ (กรรมการคนที่ 2)'])}">${getStatusIcon(applicant['สถานะ (กรรมการคนที่ 2)'])}</span>
+                        <span class="${getStatusBadgeClass(applicant['สถานะ (ดร.ชลัท)'])}">${getStatusIcon(applicant['สถานะ (ดร.ชลัท)'])}</span>
                     </div>
                     <div class="status-badge-mini">
                         <span class="committee-label">ก.3</span>
-                        <span class="${getStatusBadgeClass(applicant['สถานะ (กรรมการคนที่ 3)'])}">${getStatusIcon(applicant['สถานะ (กรรมการคนที่ 3)'])}</span>
+                        <span class="${getStatusBadgeClass(applicant['สถานะ (ดร.อภิญญา)'])}">${getStatusIcon(applicant['สถานะ (ดร.อภิญญา)'])}</span>
                     </div>
                 </div>
             </td>
@@ -394,18 +394,18 @@ function viewApplicant(anonymousId) {
                 <h3><i class="fas fa-users"></i> สถานะการพิจารณาโดยกรรมการ</h3>
                 
                 <div class="committee-status">
-                    <strong>👤 กรรมการคนที่ 1:</strong>
-                    <span class="${getStatusClass(applicant['สถานะ (กรรมการคนที่ 1)'])}">${applicant['สถานะ (กรรมการคนที่ 1)'] || 'รอพิจารณา'}</span>
+                    <strong>👤 เจ้าหน้าที่:</strong>
+                    <span class="${getStatusClass(applicant['สถานะ (เจ้าหน้าที่)'])}">${applicant['สถานะ (เจ้าหน้าที่)'] || 'รอพิจารณา'}</span>
                 </div>
                 
                 <div class="committee-status">
-                    <strong>👤 กรรมการคนที่ 2:</strong>
-                    <span class="${getStatusClass(applicant['สถานะ (กรรมการคนที่ 2)'])}">${applicant['สถานะ (กรรมการคนที่ 2)'] || 'รอพิจารณา'}</span>
+                    <strong>👤 ดร.ชลัท:</strong>
+                    <span class="${getStatusClass(applicant['สถานะ (ดร.ชลัท)'])}">${applicant['สถานะ (ดร.ชลัท)'] || 'รอพิจารณา'}</span>
                 </div>
                 
                 <div class="committee-status">
-                    <strong>👤 กรรมการคนที่ 3:</strong>
-                    <span class="${getStatusClass(applicant['สถานะ (กรรมการคนที่ 3)'])}">${applicant['สถานะ (กรรมการคนที่ 3)'] || 'รอพิจารณา'}</span>
+                    <strong>👤 ดร.อภิญญา:</strong>
+                    <span class="${getStatusClass(applicant['สถานะ (ดร.อภิญญา)'])}">${applicant['สถานะ (ดร.อภิญญา)'] || 'รอพิจารณา'}</span>
                 </div>
                 
                 <div style="margin-top: 1rem; padding: 0.75rem; background: #f8fafc; border-radius: 8px;">
@@ -421,9 +421,9 @@ function viewApplicant(anonymousId) {
                     <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">คุณคือใคร?</label>
                     <select id="committeeMemberSelect" class="form-control">
                         <option value="">-- เลือกชื่อของคุณ --</option>
-                        <option value="กรรมการคนที่ 1">กรรมการคนที่ 1</option>
-                        <option value="กรรมการคนที่ 2">กรรมการคนที่ 2</option>
-                        <option value="กรรมการคนที่ 3">กรรมการคนที่ 3</option>
+                        <option value="เจ้าหน้าที่">เจ้าหน้าที่</option>
+                        <option value="ดร.ชลัท">ดร.ชลัท</option>
+                        <option value="ดร.อภิญญา">ดร.อภิญญา</option>
                     </select>
                 </div>
                 
