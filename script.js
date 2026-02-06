@@ -745,3 +745,103 @@ function formatPhoneNumber(phone) {
 
 // ใช้ตอนแสดงผล
 console.log(formatPhoneNumber('0812345678')); // 081-234-5678
+
+// ================================
+// 🎯 INITIALIZATION
+// ================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    // ✨ แสดง popup notice ทันทีที่โหลดหน้า
+    showWelcomeNotice();
+    
+    // Initialize Select2
+    $('#qualification').select2({
+        width: '100%',
+        placeholder: '-- เลือกคุณสมบัติ --',
+        allowClear: true,
+        language: {
+            noResults: function() {
+                return "ไม่พบข้อมูล";
+            }
+        }
+    });
+    
+    $('#qualification').on('select2:select', function (e) {
+        formData.qualification = e.params.data.id;
+        console.log('✅ Select2 selected:', formData.qualification);
+    });
+    
+    $('#qualification').on('select2:clear', function (e) {
+        formData.qualification = '';
+        console.log('🧹 Select2 cleared');
+    });
+    
+    goToStep1();
+});
+
+// ================================
+// 🎉 WELCOME NOTICE POPUP
+// ================================
+
+function showWelcomeNotice() {
+    Swal.fire({
+        title: '📋 ประกาศ',
+        html: `
+            <div style="text-align: left; line-height: 1.8;">
+                <h3 style="color: #1e40af; margin-bottom: 1rem; text-align: center;">
+                    การแจ้งความประสงค์สมัครเข้าศึกษาอบรม<br>
+                    หลักสูตรประกาศนียบัตรชั้นสูงการเสริมสร้างสังคมสันติสุข<br> รุ่นที่ 16
+                </h3>
+                
+                <div style="background: #fef3c7; padding: 1rem; border-radius: 8px; border-left: 4px solid #f59e0b; margin-bottom: 1rem;">
+                    <strong style="color: #d97706;">⚠️ โปรดอ่านก่อนกรอกข้อมูล:</strong>
+                </div>
+                
+                <ol style="padding-left: 1.5rem; color: #334155;">
+                    <li style="margin-bottom: 0.75rem;">
+                        <strong>ข้อมูลส่วนบุคคล</strong><br>
+                        <small style="color: #64748b;">เลขบัตรประชาชนจะถูกเข้ารหัสและไม่แสดงต่อคณะกรรมการ</small>
+                    </li>
+                    
+                    <li style="margin-bottom: 0.75rem;">
+                        <strong>คุณสมบัติผู้สมัคร</strong><br>
+                        <small style="color: #64748b;">กรุณาเลือกคุณสมบัติที่ตรงกับตัวท่านมากที่สุด</small>
+                    </li>
+                    
+                    <li style="margin-bottom: 0.75rem;">
+                        <strong>คำตอบคำถาม</strong><br>
+                        <small style="color: #64748b;">โปรดตอบคำถามทั้ง 3 ข้อให้ครบถ้วนและชัดเจน</small>
+                    </li>
+                    
+                    <li style="margin-bottom: 0.75rem;">
+                        <strong>การพิจารณา</strong><br>
+                        <small style="color: #64748b;">
+                            หลักสูตรจะแจ้งผลการพิจารณารอบแรกให้ท่านทราบทางอีเมล<br>
+                            ในวันจันทร์ที่ <strong style="color: #dc2626;">9 มีนาคม 2569</strong>
+                        </small>
+                    </li>
+                    
+                    <li style="margin-bottom: 0.75rem;">
+                        <strong>ข้อมูลไม่สามารถแก้ไขได้</strong><br>
+                        <small style="color: #64748b;">เมื่อส่งแบบฟอร์มแล้วจะไม่สามารถแก้ไขข้อมูลได้</small>
+                    </li>
+                </ol>
+                
+                <div style="background: #dbeafe; padding: 1rem; border-radius: 8px; margin-top: 1rem; text-align: center;">
+                    <strong style="color: #1e40af;">⏱️ ระยะเวลาการกรอกฟอร์ม:</strong><br>
+                    <small style="color: #1e40af;">ประมาณ 15-20 นาที</small>
+                </div>
+            </div>
+        `,
+        icon: 'info',
+        confirmButtonText: '✓ รับทราบ เริ่มกรอกข้อมูล',
+        confirmButtonColor: '#1e40af',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        width: '600px',
+        customClass: {
+            popup: 'welcome-notice-popup',
+            htmlContainer: 'welcome-notice-content'
+        }
+    });
+}
